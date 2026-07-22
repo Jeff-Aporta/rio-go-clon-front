@@ -141,13 +141,45 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
             );
           }
 
-          case "rich-text":
+          case "rich-text": {
+            const layout = asStr(props.layout) || (asStr(props.image) ? "split" : "plain");
+            const image = asStr(props.image);
+            const title = asStr(props.title);
+            const body = asStr(props.body);
+            const signature = asStr(props.signature);
+            const logoUrl = asStr(props.logoUrl);
+            const tone = asStr(props.tone) || (layout === "split" ? "brand" : "surface");
+            const imageRight = asStr(props.imageSide) === "right";
+
+            if (layout === "split" && image) {
+              const panelColor = asStr(props.panelColor);
+              return (
+                <section
+                  key={idx}
+                  className={`landing-block landing-rich landing-rich--split tone-${tone}${imageRight ? " image-right" : ""}`}
+                >
+                  <div className="landing-rich-media">
+                    <img src={image} alt={asStr(props.imageAlt) || title || ""} />
+                  </div>
+                  <div className="landing-rich-panel" style={panelColor ? { background: panelColor } : undefined}>
+                    <div className="landing-rich-panel-inner">
+                      {title ? <h2>{title}</h2> : null}
+                      {body ? <p>{body}</p> : null}
+                      {signature ? <span className="landing-rich-sign">{signature}</span> : null}
+                      {logoUrl ? <img className="landing-rich-logo" src={logoUrl} alt="" /> : null}
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
             return (
               <section key={idx} className={`landing-block landing-padded landing-rich ${asStr(props.align) === "center" ? "center" : ""}`}>
-                {asStr(props.title) ? <h2>{asStr(props.title)}</h2> : null}
-                <p>{asStr(props.body)}</p>
+                {title ? <h2>{title}</h2> : null}
+                {body ? <p>{body}</p> : null}
               </section>
             );
+          }
 
           case "video":
             return (

@@ -190,6 +190,78 @@
   .landing-rich {
     &.center { text-align: center; max-width: 42rem; margin-inline: auto; }
     & p { color: var(--rg-muted); line-height: 1.55; }
+    &.landing-rich--split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: min(62vh, 560px);
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      background: var(--rg-surface);
+      &.image-right { .landing-rich-media { order: 2; } .landing-rich-panel { order: 1; } }
+      .landing-rich-media {
+        min-height: 280px;
+        overflow: hidden;
+        background: #eee;
+        & img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center right;
+          display: block;
+        }
+      }
+      .landing-rich-panel {
+        display: grid;
+        place-items: center;
+        padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+      }
+      .landing-rich-panel-inner {
+        display: grid;
+        gap: 18px;
+        justify-items: center;
+        text-align: center;
+        max-width: 28rem;
+        width: 100%;
+        & h2 {
+          margin: 0;
+          font-family: Syne, system-ui, sans-serif;
+          font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+          font-weight: 800;
+          line-height: 1.15;
+          letter-spacing: -0.02em;
+        }
+        & p {
+          margin: 0;
+          font-size: clamp(0.92rem, 1.4vw, 1.05rem);
+          line-height: 1.55;
+          color: inherit;
+          opacity: 0.95;
+        }
+      }
+      .landing-rich-sign {
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0.9;
+        letter-spacing: 0.02em;
+      }
+      .landing-rich-logo {
+        width: min(148px, 48%);
+        height: auto;
+        object-fit: contain;
+        margin-top: 4px;
+      }
+      &.tone-brand .landing-rich-panel {
+        background: color-mix(in srgb, var(--rg-accent) 92%, #8b1a35);
+        color: #fff;
+      }
+      &.tone-surface .landing-rich-panel {
+        background: var(--rg-surface-2);
+        color: var(--rg-text);
+        & p { color: var(--rg-muted); }
+      }
+    }
   }
   .landing-social {
     margin-top: 12px;
@@ -260,6 +332,12 @@
     .landing-padded { padding: 20px 12px; }
     .landing-hero .landing-hero-inner { padding: 28px 16px 32px; }
     .landing-social .social-links a span { display: none; }
+    .landing-rich.landing-rich--split {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      .landing-rich-media { min-height: 240px; aspect-ratio: 4 / 5; }
+      .landing-rich-panel { padding: 28px 18px 36px; }
+    }
   }
 }
 

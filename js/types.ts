@@ -172,12 +172,26 @@ export type FooterSocialProps = {
   legal?: string;
 };
 
+export type RichTextProps = {
+  title?: string;
+  body: string;
+  align?: "left" | "center" | string;
+  layout?: "plain" | "split";
+  image?: string;
+  imageAlt?: string;
+  imageSide?: "left" | "right";
+  signature?: string;
+  logoUrl?: string;
+  tone?: "brand" | "surface";
+  panelColor?: string;
+};
+
 export type LandingSection =
   | { type: "carousel"; props?: { slides?: CarouselSlide[] } & Record<string, unknown> }
   | { type: "category-tiles"; props?: { title?: string } }
   | { type: "hero"; props: { title: string; body?: string; image?: string; ctaLabel?: string; ctaTab?: string } }
   | { type: "popular-products"; props?: { title?: string; limit?: number } }
-  | { type: "rich-text"; props: { title?: string; body: string; align?: string } }
+  | { type: "rich-text"; props: RichTextProps }
   | { type: "video"; props: { title?: string; url?: string; poster?: string; body?: string } }
   | {
       type: "feature-cards";
