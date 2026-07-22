@@ -235,6 +235,34 @@ html.sl-theme-light .theme-toggle:hover {
   overscroll-behavior: contain;
   padding: 16px 16px 96px;
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-footer {
+  margin-top: auto;
+  padding: 28px 0 8px;
+  text-align: center;
+}
+.dev-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rg-muted);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.72;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.dev-footer-link strong {
+  font-weight: 700;
+  color: inherit;
+}
+.dev-footer-link:hover {
+  opacity: 1;
+  color: var(--rg-accent);
 }
 
 .hero {

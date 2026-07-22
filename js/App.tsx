@@ -14,6 +14,7 @@ import { CartPanel } from "./components/CartPanel";
 import { OrderPanel } from "./components/OrderPanel";
 import { PedidosLookup } from "./components/PedidosLookup";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { DevFooter } from "./components/DevFooter";
 import { AdminCatalog } from "./components/AdminCatalog";
 import { AdminPanel } from "./components/AdminPanel";
 import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
@@ -566,6 +567,7 @@ export function App() {
               patchStatus={(id, status) => void patchStatus(id, status)}
             />
           )}
+          <DevFooter />
         </div>
       </main>
 
