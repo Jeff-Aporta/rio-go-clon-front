@@ -484,6 +484,7 @@ export function App() {
 
       <main className="panel">
         <div className="panel-scroll">
+          <div className="panel-main">
           {loading ? (
             <div className="empty">
               <sl-spinner style={{ fontSize: "2.5rem" }}></sl-spinner>
@@ -588,6 +589,7 @@ export function App() {
               patchStatus={(id, status) => void patchStatus(id, status)}
             />
           )}
+          </div>
           <DevFooter />
         </div>
       </main>

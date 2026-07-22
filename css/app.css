@@ -228,21 +228,32 @@ html.sl-theme-light .theme-toggle:hover {
 .panel {
   overflow: hidden;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 .panel-scroll {
+  flex: 1;
+  min-height: 0;
   height: 100%;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 16px 16px 96px;
+  padding: 16px 16px 20px;
   scroll-behavior: smooth;
   display: flex;
   flex-direction: column;
 }
+.panel-main {
+  flex: 1 0 auto;
+  min-width: 0;
+  width: 100%;
+}
 
 .dev-footer {
+  flex: 0 0 auto;
   margin-top: auto;
-  padding: 28px 0 8px;
+  padding: 56px 0 20px;
   text-align: center;
+  width: 100%;
 }
 .dev-footer-link {
   display: inline-flex;
@@ -761,7 +772,7 @@ html.sl-theme-light .hero-price {
 /* —— Responsive —— */
 @media (min-width: 640px) {
   .checkout-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .panel-scroll { padding: 18px 20px 110px; }
+  .panel-scroll { padding: 18px 20px 24px; }
   .product-card { flex-basis: 200px; }
 }
 
@@ -791,7 +802,7 @@ html.sl-theme-light .hero-price {
   .brand h1 { font-size: 0.95rem; }
   .tab-btn span.label { display: none; }
   .header-actions { gap: 4px; }
-  .panel-scroll { padding: 12px 12px 96px; }
+  .panel-scroll { padding: 12px 12px 20px; }
   .hero sl-carousel { --aspect-ratio: 1.25; }
   .hero-caption {
     bottom: 28px;
