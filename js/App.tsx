@@ -544,9 +544,11 @@ export function App() {
               products={products}
               categorias={categorias}
               carouselIdx={carouselIdx}
+              qtyByCode={qtyByCode}
               onGoTab={(t) => go(t)}
               onOpenProduct={setDetail}
               onAdd={(p) => addToCart(p)}
+              onSetQty={setQty}
             />
           ) : activeDriver === "locations" ? (
             <LocationsDriver locations={site.locations || []} hub={site.locationsHub} />
@@ -557,6 +559,7 @@ export function App() {
               catFilter={catFilter}
               onOpen={setDetail}
               onAdd={(p) => addToCart(p)}
+              onSetQty={setQty}
               qtyByCode={qtyByCode}
             />
           ) : activeDriver === "catalog-rows" || route.tab === "menu" ? (

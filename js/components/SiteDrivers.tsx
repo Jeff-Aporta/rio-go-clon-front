@@ -1,16 +1,18 @@
 import type { CarouselSlide, LocationsHub, Product } from "../types";
 import type { SiteConfig, SiteLocation } from "../site";
 import { popularProducts, resolveCarouselSlides } from "../site";
-import { money } from "../money";
+import { ProductCard } from "./ProductCard";
 
 type Props = {
   site: SiteConfig;
   products: Product[];
   categorias: string[];
   carouselIdx: unknown;
+  qtyByCode: Map<string, number>;
   onGoTab: (tab: string) => void;
   onOpenProduct: (p: Product) => void;
   onAdd: (p: Product) => void;
+  onSetQty: (codigoAb: string, qty: number) => void;
 };
 
 function asStr(v: unknown): string {
@@ -38,7 +40,17 @@ function onSlideClick(
 }
 
 /** Landing declarativa — secciones desde SITE.landing.sections. */
-export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab, onOpenProduct, onAdd }: Props) {
+export function LandingDriver({
+  site,
+  products,
+  categorias,
+  carouselIdx,
+  qtyByCode,
+  onGoTab,
+  onOpenProduct,
+  onAdd,
+  onSetQty,
+}: Props) {
   const sections = site.landing?.sections?.length
     ? site.landing.sections
     : [{ type: "carousel" }, { type: "popular-products", props: { limit: 8 } }];
@@ -122,22 +134,15 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
                 <h2 className="landing-title">{asStr(props.title) || "Populares"}</h2>
                 <div className="product-grid uninterrupted">
                   {list.map((p) => (
-                    <article key={p.codigoAb} className="grid-card">
-                      <button type="button" className="grid-card-media" onClick={() => onOpenProduct(p)}>
-                        {p.imagenMiniUrl || p.imagenUrl ? (
-                          <img src={p.imagenMiniUrl || p.imagenUrl || ""} alt={p.nombre} />
-                        ) : (
-                          <iconify-icon icon="mdi:image-off" width="40" height="40"></iconify-icon>
-                        )}
-                      </button>
-                      <div className="grid-card-body">
-                        <strong>{p.nombre}</strong>
-                        <span className="price">{money(p.precioUnidad)}</span>
-                        <button type="button" className="landing-cta slim" onClick={() => onAdd(p)}>
-                          Añadir
-                        </button>
-                      </div>
-                    </article>
+                    <ProductCard
+                      key={p.codigoAb}
+                      p={p}
+                      layout="grid"
+                      qty={qtyByCode.get(p.codigoAb) ?? 0}
+                      onOpen={onOpenProduct}
+                      onAdd={onAdd}
+                      onSetQty={onSetQty}
+                    />
                   ))}
                 </div>
               </section>
@@ -379,11 +384,12 @@ type GridProps = {
   catFilter: string;
   onOpen: (p: Product) => void;
   onAdd: (p: Product) => void;
+  onSetQty: (codigoAb: string, qty: number) => void;
   qtyByCode: Map<string, number>;
 };
 
 /** Grid continuo ordenado por categoría (sin filas que interrumpan). */
-export function CatalogGridDriver({ products, q, catFilter, onOpen, onAdd, qtyByCode }: GridProps) {
+export function CatalogGridDriver({ products, q, catFilter, onOpen, onAdd, onSetQty, qtyByCode }: GridProps) {
   const qq = q.trim().toLowerCase();
   const list = [...products]
     .filter((p) => {
@@ -404,23 +410,16 @@ export function CatalogGridDriver({ products, q, catFilter, onOpen, onAdd, qtyBy
   return (
     <div className="product-grid uninterrupted">
       {list.map((p) => (
-        <article key={p.codigoAb} className="grid-card">
-          <button type="button" className="grid-card-media" onClick={() => onOpen(p)}>
-            {p.imagenMiniUrl || p.imagenUrl ? (
-              <img src={p.imagenMiniUrl || p.imagenUrl || ""} alt={p.nombre} />
-            ) : (
-              <iconify-icon icon="mdi:image-off" width="40" height="40"></iconify-icon>
-            )}
-          </button>
-          <div className="grid-card-body">
-            <span className="grid-cat">{p.categoria}</span>
-            <strong>{p.nombre}</strong>
-            <span className="price">{money(p.precioUnidad)}</span>
-            <button type="button" className="landing-cta slim" onClick={() => onAdd(p)}>
-              {qtyByCode.get(p.codigoAb) ? `En carrito (${qtyByCode.get(p.codigoAb)})` : "Añadir"}
-            </button>
-          </div>
-        </article>
+        <ProductCard
+          key={p.codigoAb}
+          p={p}
+          layout="grid"
+          showCategory
+          qty={qtyByCode.get(p.codigoAb) ?? 0}
+          onOpen={onOpen}
+          onAdd={onAdd}
+          onSetQty={onSetQty}
+        />
       ))}
     </div>
   );
