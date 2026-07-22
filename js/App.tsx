@@ -49,14 +49,13 @@ function loadCart(): CartItem[] {
 
 function readTheme(): ThemeMode {
   try {
-    const v =
-      localStorage.getItem(storageKey("theme")) ||
-      localStorage.getItem("storefront:theme") ||
-      localStorage.getItem("riogo:theme");
+    const v = localStorage.getItem(storageKey("theme"));
     if (v === "light" || v === "dark") return v;
   } catch {
     /* ignore */
   }
+  const cached = readCachedBrand();
+  if (cached?.defaultTheme === "light" || cached?.defaultTheme === "dark") return cached.defaultTheme;
   return "dark";
 }
 
@@ -137,12 +136,30 @@ export function App() {
 
   useEffect(() => {
     applyBrandTheme(brand, theme);
-    try {
-      localStorage.setItem(storageKey("theme"), theme);
-    } catch {
-      /* ignore */
-    }
   }, [theme, brand]);
+
+  useEffect(() => {
+    const def = brand?.defaultTheme;
+    if (def !== "light" && def !== "dark") return;
+    try {
+      if (localStorage.getItem(storageKey("theme"))) return;
+    } catch {
+      return;
+    }
+    setTheme(def);
+  }, [brand?.defaultTheme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((t) => {
+      const next: ThemeMode = t === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(storageKey("theme"), next);
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const onPop = () => {
@@ -489,7 +506,7 @@ export function App() {
             <span className="label">Carrito</span>
             {cartCount > 0 ? <span className="badge">{cartCount}</span> : null}
           </button>
-          <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
       </header>
 
@@ -526,7 +543,7 @@ export function App() {
               site={site}
               products={products}
               categorias={categorias}
-              heroItems={heroItems}
+              carouselIdx={carouselIdx}
               onGoTab={(t) => go(t)}
               onOpenProduct={setDetail}
               onAdd={(p) => addToCart(p)}

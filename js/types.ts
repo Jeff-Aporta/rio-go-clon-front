@@ -148,10 +148,46 @@ export type SiteTab = {
   icon?: string;
 };
 
-export type LandingSection = {
-  type: string;
-  props?: Record<string, unknown>;
+/** Slide del carrusel — banner publicitario o producto (mismo contrato API). */
+export type CarouselSlide = {
+  id?: string;
+  imageUrl: string;
+  alt?: string;
+  codigoAb?: string;
+  hrefTab?: string;
+  hrefUrl?: string;
 };
+
+export type SocialLink = {
+  label: string;
+  url: string;
+  icon?: string;
+};
+
+export type FooterSocialProps = {
+  title?: string;
+  tagline?: string;
+  logoUrl?: string;
+  links?: SocialLink[];
+  legal?: string;
+};
+
+export type LandingSection =
+  | { type: "carousel"; props?: { slides?: CarouselSlide[] } & Record<string, unknown> }
+  | { type: "category-tiles"; props?: { title?: string } }
+  | { type: "hero"; props: { title: string; body?: string; image?: string; ctaLabel?: string; ctaTab?: string } }
+  | { type: "popular-products"; props?: { title?: string; limit?: number } }
+  | { type: "rich-text"; props: { title?: string; body: string; align?: string } }
+  | { type: "video"; props: { title?: string; url?: string; poster?: string; body?: string } }
+  | {
+      type: "feature-cards";
+      props: {
+        title?: string;
+        items: Array<{ title: string; body?: string; image?: string; priceHint?: string; hrefTab?: string }>;
+      };
+    }
+  | { type: "footer-social"; props?: FooterSocialProps }
+  | { type: string; props?: Record<string, unknown> };
 
 export type SiteLocation = {
   id?: string;

@@ -65,6 +65,13 @@
       try {
         var v = localStorage.getItem(prefix + ":theme");
         if (v === "light" || v === "dark") m = v;
+        else {
+          var brandRaw = localStorage.getItem(prefix + ":brand");
+          if (brandRaw) {
+            var b0 = JSON.parse(brandRaw);
+            if (b0 && (b0.defaultTheme === "light" || b0.defaultTheme === "dark")) m = b0.defaultTheme;
+          }
+        }
       } catch (e) {}
       document.documentElement.classList.add(m === "dark" ? "sl-theme-dark" : "sl-theme-light");
       document.documentElement.style.colorScheme = m;

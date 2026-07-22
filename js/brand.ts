@@ -121,11 +121,13 @@ export function writeCachedBrand(brand: BrandIdentity): void {
 
 export function readStoredThemeMode(): ThemeMode {
   try {
-    const v = localStorage.getItem(storageKey("theme")) || localStorage.getItem("riogo:theme");
+    const v = localStorage.getItem(storageKey("theme"));
     if (v === "light" || v === "dark") return v;
   } catch {
     /* ignore */
   }
+  const brand = readCachedBrand();
+  if (brand?.defaultTheme === "light" || brand?.defaultTheme === "dark") return brand.defaultTheme;
   return "dark";
 }
 

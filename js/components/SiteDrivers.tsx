@@ -1,13 +1,13 @@
-import type { Product } from "../types";
+import type { CarouselSlide, Product } from "../types";
 import type { SiteConfig, SiteLocation } from "../site";
-import { popularProducts } from "../site";
+import { popularProducts, resolveCarouselSlides } from "../site";
 import { money } from "../money";
 
 type Props = {
   site: SiteConfig;
   products: Product[];
   categorias: string[];
-  heroItems: Product[];
+  carouselIdx: unknown;
   onGoTab: (tab: string) => void;
   onOpenProduct: (p: Product) => void;
   onAdd: (p: Product) => void;
@@ -17,8 +17,28 @@ function asStr(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
+function onSlideClick(
+  slide: CarouselSlide,
+  products: Product[],
+  onGoTab: (tab: string) => void,
+  onOpenProduct: (p: Product) => void,
+) {
+  if (slide.hrefUrl) {
+    window.open(slide.hrefUrl, "_blank", "noopener,noreferrer");
+    return;
+  }
+  if (slide.hrefTab) {
+    onGoTab(slide.hrefTab);
+    return;
+  }
+  if (slide.codigoAb) {
+    const p = products.find((x) => x.codigoAb === slide.codigoAb);
+    if (p) onOpenProduct(p);
+  }
+}
+
 /** Landing declarativa — secciones desde SITE.landing.sections. */
-export function LandingDriver({ site, products, categorias, heroItems, onGoTab, onOpenProduct, onAdd }: Props) {
+export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab, onOpenProduct, onAdd }: Props) {
   const sections = site.landing?.sections?.length
     ? site.landing.sections
     : [{ type: "carousel" }, { type: "popular-products", props: { limit: 8 } }];
@@ -29,29 +49,41 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
       {sections.map((sec, idx) => {
         const props = (sec.props || {}) as Record<string, unknown>;
         switch (sec.type) {
-          case "carousel":
-            return heroItems.length ? (
-              <section key={idx} className="landing-block">
+          case "carousel": {
+            const slides = resolveCarouselSlides(props, products, carouselIdx);
+            if (!slides.length) return null;
+            return (
+              <section key={idx} className="landing-block landing-carousel">
                 <sl-carousel navigation pagination autoplay className="hero-carousel">
-                  {heroItems.map((p) => (
-                    <sl-carousel-item key={p.codigoAb}>
-                      <button type="button" className="hero-slide" onClick={() => onOpenProduct(p)}>
-                        {p.imagenUrl || p.imagenMiniUrl ? (
-                          <img src={p.imagenMiniUrl || p.imagenUrl || ""} alt={p.nombre} />
+                  {slides.map((slide) => {
+                    const clickable = !!(slide.hrefUrl || slide.hrefTab || slide.codigoAb);
+                    return (
+                      <sl-carousel-item key={slide.id || slide.imageUrl}>
+                        {clickable ? (
+                          <button
+                            type="button"
+                            className={`hero-slide${slide.codigoAb ? " hero-slide--product" : " hero-slide--banner"}`}
+                            onClick={() => onSlideClick(slide, products, onGoTab, onOpenProduct)}
+                          >
+                            <img src={slide.imageUrl} alt={slide.alt || ""} />
+                            {slide.codigoAb && slide.alt ? <span className="hero-cap">{slide.alt}</span> : null}
+                          </button>
                         ) : (
-                          <div className="hero-fallback">{p.nombre}</div>
+                          <div className="hero-slide hero-slide--banner">
+                            <img src={slide.imageUrl} alt={slide.alt || ""} />
+                          </div>
                         )}
-                        <span className="hero-cap">{p.nombre}</span>
-                      </button>
-                    </sl-carousel-item>
-                  ))}
+                      </sl-carousel-item>
+                    );
+                  })}
                 </sl-carousel>
               </section>
-            ) : null;
+            );
+          }
 
           case "category-tiles":
             return (
-              <section key={idx} className="landing-block">
+              <section key={idx} className="landing-block landing-padded">
                 {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
                 <div className="cat-tiles">
                   {categorias.map((c) => (
@@ -67,13 +99,15 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
           case "hero":
             return (
               <section key={idx} className="landing-block landing-hero">
-                <h2>{asStr(props.title)}</h2>
-                {asStr(props.body) ? <p>{asStr(props.body)}</p> : null}
-                {asStr(props.ctaLabel) ? (
-                  <button type="button" className="landing-cta" onClick={() => onGoTab(asStr(props.ctaTab) || "menu")}>
-                    {asStr(props.ctaLabel)}
-                  </button>
-                ) : null}
+                <div className="landing-hero-inner">
+                  <h2>{asStr(props.title)}</h2>
+                  {asStr(props.body) ? <p>{asStr(props.body)}</p> : null}
+                  {asStr(props.ctaLabel) ? (
+                    <button type="button" className="landing-cta" onClick={() => onGoTab(asStr(props.ctaTab) || "menu")}>
+                      {asStr(props.ctaLabel)}
+                    </button>
+                  ) : null}
+                </div>
               </section>
             );
 
@@ -81,7 +115,7 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
             const limit = Number(props.limit) || 8;
             const list = popularProducts(products, limit);
             return (
-              <section key={idx} className="landing-block">
+              <section key={idx} className="landing-block landing-padded">
                 <h2 className="landing-title">{asStr(props.title) || "Populares"}</h2>
                 <div className="product-grid uninterrupted">
                   {list.map((p) => (
@@ -109,7 +143,7 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
 
           case "rich-text":
             return (
-              <section key={idx} className={`landing-block landing-rich ${asStr(props.align) === "center" ? "center" : ""}`}>
+              <section key={idx} className={`landing-block landing-padded landing-rich ${asStr(props.align) === "center" ? "center" : ""}`}>
                 {asStr(props.title) ? <h2>{asStr(props.title)}</h2> : null}
                 <p>{asStr(props.body)}</p>
               </section>
@@ -117,7 +151,7 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
 
           case "video":
             return (
-              <section key={idx} className="landing-block landing-video">
+              <section key={idx} className="landing-block landing-padded landing-video">
                 {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
                 {asStr(props.url) ? (
                   <div className="video-frame">
@@ -137,16 +171,11 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
           case "feature-cards": {
             const items = Array.isArray(props.items) ? (props.items as Array<Record<string, string>>) : [];
             return (
-              <section key={idx} className="landing-block">
+              <section key={idx} className="landing-block landing-padded">
                 {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
                 <div className="feature-cards">
                   {items.map((it, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="feature-card"
-                      onClick={() => onGoTab(it.hrefTab || "menu")}
-                    >
+                    <button key={i} type="button" className="feature-card" onClick={() => onGoTab(it.hrefTab || "menu")}>
                       {it.image ? <img src={it.image} alt="" /> : null}
                       <strong>{it.title}</strong>
                       {it.body ? <span>{it.body}</span> : null}
@@ -160,18 +189,27 @@ export function LandingDriver({ site, products, categorias, heroItems, onGoTab, 
 
           case "footer-social": {
             const links = Array.isArray(props.links) ? (props.links as Array<Record<string, string>>) : [];
+            const title = asStr(props.title);
+            const tagline = asStr(props.tagline);
+            const logoUrl = asStr(props.logoUrl);
+            const legal = asStr(props.legal);
             return (
-              <section key={idx} className="landing-block landing-social">
-                {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
-                <div className="social-links">
-                  {links.map((l, i) => (
-                    <a key={i} href={l.url} target="_blank" rel="noopener noreferrer">
-                      <iconify-icon icon={l.icon || "mdi:link"} width="18" height="18"></iconify-icon>
-                      {l.label}
-                    </a>
-                  ))}
+              <footer key={idx} className="landing-block landing-social">
+                <div className="landing-social-inner">
+                  {logoUrl ? <img className="landing-social-logo" src={logoUrl} alt={title || ""} /> : null}
+                  {title ? <strong className="landing-social-title">{title}</strong> : null}
+                  {tagline ? <p className="landing-social-tagline">{tagline}</p> : null}
+                  <div className="social-links">
+                    {links.map((l, i) => (
+                      <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" aria-label={l.label} title={l.label}>
+                        <iconify-icon icon={l.icon || "mdi:link"} width="22" height="22"></iconify-icon>
+                        <span>{l.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                  {legal ? <p className="landing-social-legal">{legal}</p> : null}
                 </div>
-              </section>
+              </footer>
             );
           }
 
@@ -199,9 +237,7 @@ export function LocationsDriver({ locations }: { locations: SiteLocation[] }) {
           {loc.address ? <span>{loc.address}</span> : null}
           {loc.city ? <span className="muted">{loc.city}</span> : null}
           {loc.hours ? <span className="muted">{loc.hours}</span> : null}
-          {loc.phone ? (
-            <a href={`tel:${loc.phone.replace(/\s/g, "")}`}>{loc.phone}</a>
-          ) : null}
+          {loc.phone ? <a href={`tel:${loc.phone.replace(/\s/g, "")}`}>{loc.phone}</a> : null}
           {loc.mapUrl ? (
             <a href={loc.mapUrl} target="_blank" rel="noopener noreferrer">
               Ver mapa
