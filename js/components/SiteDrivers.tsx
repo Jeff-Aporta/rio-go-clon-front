@@ -84,6 +84,7 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
           case "category-tiles":
             return (
               <section key={idx} className="landing-block landing-padded">
+                <p className="landing-kicker">Colecciones</p>
                 {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
                 <div className="cat-tiles">
                   {categorias.map((c) => (
@@ -100,6 +101,7 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
             return (
               <section key={idx} className="landing-block landing-hero">
                 <div className="landing-hero-inner">
+                  <p className="landing-kicker">Pedido online</p>
                   <h2>{asStr(props.title)}</h2>
                   {asStr(props.body) ? <p>{asStr(props.body)}</p> : null}
                   {asStr(props.ctaLabel) ? (
@@ -116,6 +118,7 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
             const list = popularProducts(products, limit);
             return (
               <section key={idx} className="landing-block landing-padded">
+                <p className="landing-kicker">Destacados</p>
                 <h2 className="landing-title">{asStr(props.title) || "Populares"}</h2>
                 <div className="product-grid uninterrupted">
                   {list.map((p) => (
@@ -167,6 +170,7 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
                       {body ? <p>{body}</p> : null}
                       {signature ? <span className="landing-rich-sign">{signature}</span> : null}
                       {logoUrl ? <img className="landing-rich-logo" src={logoUrl} alt="" /> : null}
+                      <hr className="landing-rich-rule" />
                     </div>
                   </div>
                 </section>

@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://esm.sh" crossorigin />
   <link rel="preconnect" href="https://code.iconify.design" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/dark.css" />
   <link rel="stylesheet" href="_dist/css/app.css" />
@@ -109,6 +109,10 @@
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute("content", pal.bg);
         if (brand.name) document.title = brand.name + " — Pedidos";
+        var bid = String(brand.id || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+        if (bid.indexOf("jacobo") >= 0) document.documentElement.setAttribute("data-app", "donjacobo");
+        else if (bid.indexOf("rio") >= 0) document.documentElement.setAttribute("data-app", "riogo");
+        else if (bid) document.documentElement.setAttribute("data-app", bid);
       } catch (e) {}
     })();
   </script>

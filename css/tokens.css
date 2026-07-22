@@ -19,6 +19,8 @@ html.sl-theme-dark {
   --sl-color-primary-600: #f5a623;
   --sl-color-primary-500: #f5a623;
   --sl-font-sans: "DM Sans", system-ui, sans-serif;
+  --rg-font: "DM Sans", system-ui, sans-serif;
+  --rg-font-display: Syne, "DM Sans", system-ui, sans-serif;
 }
 
 html.sl-theme-light {
@@ -45,7 +47,38 @@ html, body {
   overflow: hidden;
   background: var(--rg-bg);
   color: var(--rg-text);
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: var(--rg-font, "DM Sans", system-ui, sans-serif);
+}
+
+/* Identidad Don Jacobo — pastelería editorial */
+html[data-app="donjacobo"] {
+  --rg-font: "Figtree", "DM Sans", system-ui, sans-serif;
+  --rg-font-display: "Cormorant Garamond", Georgia, serif;
+  --rg-radius: 12px;
+  --sl-font-sans: "Figtree", "DM Sans", system-ui, sans-serif;
+  font-family: var(--rg-font);
+  & .brand h1,
+  & .landing-title,
+  & .landing-hero-inner h2,
+  & .landing-rich-panel-inner h2,
+  & .landing-social-title,
+  & .hub-card-body strong {
+    font-family: var(--rg-font-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  & .tab-btn.active {
+    color: #fff;
+    background: var(--rg-accent);
+  }
+  & .landing-cta {
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 14px 28px;
+  }
 }
 
 #root { height: 100%; min-height: 100dvh; }

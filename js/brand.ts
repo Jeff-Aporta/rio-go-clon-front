@@ -136,6 +136,13 @@ export function applyBrandTheme(brand: BrandIdentity | null | undefined, mode: T
   const hasApiThemes = isPalette(brand?.themes?.dark) || isPalette(brand?.themes?.light);
   applyModeClasses(mode);
 
+  const appKey = String(brand?.id || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+  const dataApp = appKey.includes("jacobo") ? "donjacobo" : appKey.includes("rio") ? "riogo" : appKey || "";
+  if (dataApp) document.documentElement.dataset.app = dataApp;
+  else delete document.documentElement.dataset.app;
+
   if (!hasApiThemes) {
     // Deja ganar el CSS base (sin overrides inline viejos)
     clearInlinePalette();
