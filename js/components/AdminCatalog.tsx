@@ -177,6 +177,9 @@ export function AdminCatalog({ brandName, theme, onThemeToggle, onExit }: Props)
         </div>
 
         <div className="admin-bar-actions">
+          <button type="button" className="tab-btn" onClick={onExit} title="Salir de admin">
+            Catálogo
+          </button>
           {authed ? (
             <>
               <label className={`autosave-toggle${autosave ? " on" : ""}`}>
@@ -223,9 +226,6 @@ export function AdminCatalog({ brandName, theme, onThemeToggle, onExit }: Props)
             </form>
           )}
           <ThemeToggle theme={theme} onToggle={onThemeToggle} />
-          <button type="button" className="tab-btn" onClick={onExit} title="Volver a tienda" aria-label="Tienda">
-            <iconify-icon icon="mdi:storefront-outline" width="18" height="18"></iconify-icon>
-          </button>
         </div>
       </header>
 
