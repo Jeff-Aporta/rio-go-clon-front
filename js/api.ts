@@ -31,6 +31,10 @@ export async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
+function bearer(token: string): HeadersInit {
+  return { Authorization: `Bearer ${token}` };
+}
+
 export function fetchBrand(): Promise<BrandResponse> {
   return api<BrandResponse>("/api/brand");
 }
@@ -41,6 +45,20 @@ export function fetchCatalog(filter: IssListFilter = {}): Promise<CatalogRespons
     method: "QUERY",
     body: JSON.stringify(filter),
   });
+}
+
+export function loginAdmin(
+  username: string,
+  password: string,
+): Promise<{ ok: true; token: string; expiresAt: string; username: string }> {
+  return api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+export function fetchAuthMe(token: string): Promise<{ ok: true; username: string }> {
+  return api("/api/auth/me", { headers: bearer(token) });
 }
 
 export function fetchOrder(id: string): Promise<{ ok: true; order: Order }> {
@@ -63,13 +81,11 @@ export function createOrder(body: {
 }
 
 export function fetchAdminOrders(token: string, limit = 80): Promise<{ ok: true; orders: Order[] }> {
-  return api(`/api/admin/orders?limit=${limit}`, {
-    headers: { "X-Admin-Token": token },
-  });
+  return api(`/api/admin/orders?limit=${limit}`, { headers: bearer(token) });
 }
 
 export function fetchAdminProducts(token: string): Promise<{ ok: true; products: import("./types").Product[] }> {
-  return api("/api/admin/products", { headers: { "X-Admin-Token": token } });
+  return api("/api/admin/products", { headers: bearer(token) });
 }
 
 export function patchAdminProduct(
@@ -79,7 +95,7 @@ export function patchAdminProduct(
 ): Promise<{ ok: true; product: import("./types").Product }> {
   return api(`/api/admin/products/${encodeURIComponent(codigo)}`, {
     method: "PATCH",
-    headers: { "X-Admin-Token": token },
+    headers: bearer(token),
     body: JSON.stringify(body),
   });
 }
@@ -97,7 +113,7 @@ export async function uploadAdminProductImage(
   if (opts?.descripcion) fd.append("descripcion", opts.descripcion);
   const res = await fetch(`${apiBase()}/api/admin/products/${encodeURIComponent(codigo)}/images`, {
     method: "POST",
-    headers: { "X-Admin-Token": token, Accept: "application/json" },
+    headers: { ...bearer(token), Accept: "application/json" },
     body: fd,
   });
   const data = (await parseJson(res)) as { ok?: boolean; error?: string; image?: unknown; product?: unknown };
@@ -112,7 +128,7 @@ export function patchOrderStatus(
 ): Promise<{ ok: true; order: Order }> {
   return api(`/api/admin/orders/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    headers: { "X-Admin-Token": token },
+    headers: bearer(token),
     body: JSON.stringify({ status }),
   });
 }

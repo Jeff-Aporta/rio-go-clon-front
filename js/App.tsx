@@ -13,6 +13,7 @@ import { ProductCard } from "./components/ProductCard";
 import { CartPanel } from "./components/CartPanel";
 import { OrderPanel } from "./components/OrderPanel";
 import { PedidosLookup } from "./components/PedidosLookup";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { AdminCatalog } from "./components/AdminCatalog";
 import { AdminPanel } from "./components/AdminPanel";
 import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
@@ -99,7 +100,7 @@ export function App() {
   const [orderView, setOrderView] = useState<Order | { error: string } | null>(null);
   const [adminOrders, setAdminOrders] = useState<Order[]>([]);
   const [adminToken, setAdminToken] = useState(
-    () => localStorage.getItem(storageKey("adminToken")) || localStorage.getItem("riogo:adminToken") || "",
+    () => localStorage.getItem(storageKey("authJwt")) || localStorage.getItem(storageKey("adminToken")) || localStorage.getItem("riogo:adminToken") || "",
   );
   const [customer, setCustomer] = useState<Customer>(emptyCustomer);
   const [placing, setPlacing] = useState(false);
@@ -356,7 +357,7 @@ export function App() {
 
   const loadAdmin = async () => {
     try {
-      localStorage.setItem(storageKey("adminToken"), adminToken);
+      localStorage.setItem(storageKey("authJwt"), adminToken);
       const data = await fetchAdminOrders(adminToken);
       setAdminOrders(data.orders);
       notify("Pedidos cargados");
@@ -390,7 +391,14 @@ export function App() {
         </div>
       );
     }
-    return <AdminCatalog brandName={storeName} onExit={() => { writeAdminView(false, true); setAdminView(false); }} />;
+    return (
+      <AdminCatalog
+        brandName={storeName}
+        theme={theme}
+        onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+        onExit={() => { writeAdminView(false, true); setAdminView(false); }}
+      />
+    );
   }
 
   return (
@@ -433,18 +441,7 @@ export function App() {
             <span className="label">Carrito</span>
             {cartCount > 0 ? <span className="badge">{cartCount}</span> : null}
           </button>
-          <button
-            type="button"
-            className="theme-toggle"
-            aria-label="Cambiar tema"
-            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-          >
-            <iconify-icon
-              icon={theme === "dark" ? "mdi:weather-sunny" : "mdi:weather-night"}
-              width="20"
-              height="20"
-            ></iconify-icon>
-          </button>
+          <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
         </div>
       </header>
 
@@ -570,15 +567,18 @@ export function App() {
 
       <sl-drawer ref={drawerRef} label={detail?.nombre || "Producto"} style={{ "--size": "420px" }}>
         {detail ? (
-          <div>
-            {detail.imagenUrl || detail.imagenMiniUrl ? (
-              <img className="detail-media" src={detail.imagenUrl || detail.imagenMiniUrl || ""} alt="" />
-            ) : null}
-            <div className="detail-price">{money(detail.precioUnidad)}</div>
-            <p style={{ color: "var(--rg-muted)", lineHeight: 1.45 }}>
-              {productBlurb(detail) || detail.descripcion || "Sin descripción"}
-            </p>
+          <>
+            <div className="detail-body">
+              {detail.imagenUrl || detail.imagenMiniUrl ? (
+                <img className="detail-media" src={detail.imagenUrl || detail.imagenMiniUrl || ""} alt="" />
+              ) : null}
+              <div className="detail-price">{money(detail.precioUnidad)}</div>
+              <p style={{ color: "var(--rg-muted)", lineHeight: 1.45 }}>
+                {productBlurb(detail) || detail.descripcion || "Sin descripción"}
+              </p>
+            </div>
             <sl-button
+              slot="footer"
               variant="primary"
               style={{ width: "100%" }}
               onClick={() => {
@@ -588,7 +588,7 @@ export function App() {
             >
               Agregar al carrito
             </sl-button>
-          </div>
+          </>
         ) : null}
       </sl-drawer>
     </div>
