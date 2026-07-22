@@ -39,6 +39,11 @@ declare global {
       };
       "sl-carousel-item": CEProps;
       "sl-drawer": CEProps & { label?: string; open?: boolean };
+      "sl-dialog": CEProps & {
+        label?: string;
+        open?: boolean;
+        "no-header"?: boolean;
+      };
       "sl-input": CEProps & {
         label?: string;
         type?: string;

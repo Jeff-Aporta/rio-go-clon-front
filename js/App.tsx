@@ -5,6 +5,7 @@ import {
   fetchBrand,
   fetchCatalog,
   fetchOrderPublic,
+  fetchOrderWhatsApp,
   patchOrderStatus,
 } from "./api";
 import { apiBase, loadConfig, storageKey } from "./config";
@@ -15,6 +16,7 @@ import { OrderPanel } from "./components/OrderPanel";
 import { PedidosLookup } from "./components/PedidosLookup";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { DevFooter } from "./components/DevFooter";
+import { OrderReadyDialog } from "./components/OrderReadyDialog";
 import { AdminCatalog } from "./components/AdminCatalog";
 import { AdminPanel } from "./components/AdminPanel";
 import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
@@ -105,6 +107,8 @@ export function App() {
   );
   const [customer, setCustomer] = useState<Customer>(emptyCustomer);
   const [placing, setPlacing] = useState(false);
+  const [orderModal, setOrderModal] = useState<{ id: string; reused: boolean; url: string } | null>(null);
+  const [waSending, setWaSending] = useState(false);
   const drawerRef = useRef<HTMLElement | null>(null);
 
   const onSearch = useCallback((e: Event) => setQ(slValue(e)), []);
@@ -344,16 +348,33 @@ export function App() {
         total,
         notes: customer.observaciones || "",
       });
-      const viewUrl = orderViewUrl(data.id);
-      openOrderWhatsApp(viewUrl, brand?.whatsapp);
-      setCart([]);
-      go("pedido", data.id);
-      notify(`Pedido #${data.id} — abriendo WhatsApp`);
+      const viewUrl = data.url || orderViewUrl(data.id);
+      setOrderModal({ id: data.id, reused: Boolean(data.reused), url: viewUrl });
+      notify(data.reused ? `Pedido #${data.id} ya existía` : `Pedido #${data.id} creado`);
     } catch (e) {
       notify(e instanceof Error ? e.message : String(e));
     } finally {
       setPlacing(false);
     }
+  };
+
+  const sendOrderWhatsApp = async () => {
+    if (!orderModal) return;
+    setWaSending(true);
+    try {
+      const wa = await fetchOrderWhatsApp(orderModal.id);
+      window.open(wa.whatsappUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      openOrderWhatsApp(orderModal.url, brand?.whatsapp);
+    } finally {
+      setWaSending(false);
+    }
+  };
+
+  const clearCartFromModal = () => {
+    setCart([]);
+    setOrderModal(null);
+    notify("Carrito vacío");
   };
 
   const loadAdmin = async () => {
@@ -597,6 +618,21 @@ export function App() {
           </>
         ) : null}
       </sl-drawer>
+      <OrderReadyDialog
+        open={Boolean(orderModal)}
+        orderId={orderModal?.id || ""}
+        reused={Boolean(orderModal?.reused)}
+        sending={waSending}
+        onSendWhatsApp={() => void sendOrderWhatsApp()}
+        onClearCart={clearCartFromModal}
+        onViewOrder={() => {
+          if (!orderModal) return;
+          const id = orderModal.id;
+          setOrderModal(null);
+          go("pedido", id);
+        }}
+        onClose={() => setOrderModal(null)}
+      />
     </div>
   );
 }

@@ -76,8 +76,14 @@ export function createOrder(body: {
   deliveryFee: number;
   total: number;
   notes?: string;
-}): Promise<{ ok: true; id: string; path: string; url: string }> {
+}): Promise<{ ok: true; id: string; reused?: boolean; path: string; url: string }> {
   return api("/api/orders", { method: "POST", body: JSON.stringify(body) });
+}
+
+export function fetchOrderWhatsApp(
+  id: string,
+): Promise<{ ok: true; id: string; orderUrl: string; text: string; whatsappUrl: string; phone: string }> {
+  return api(`/api/orders/${encodeURIComponent(id)}/whatsapp`);
 }
 
 export function fetchAdminOrders(token: string, limit = 80): Promise<{ ok: true; orders: Order[] }> {

@@ -651,6 +651,32 @@ html.sl-theme-light .hero-price {
 }
 .checkout-span { grid-column: 1 / -1; }
 .checkout-submit { width: 100%; max-width: 100%; }
+
+.order-ready-body {
+  display: grid;
+  gap: 10px;
+  color: var(--rg-text);
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+.order-ready-body p { margin: 0; color: var(--rg-muted); }
+.order-ready-id {
+  color: var(--rg-text) !important;
+  font-size: 1.05rem;
+}
+.order-ready-id strong {
+  color: var(--rg-accent);
+  font-family: Syne, sans-serif;
+}
+.order-ready-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.order-ready-dialog::part(panel) {
+  max-width: min(440px, calc(100vw - 32px));
+}
 .totals {
   display: grid;
   gap: 6px;
