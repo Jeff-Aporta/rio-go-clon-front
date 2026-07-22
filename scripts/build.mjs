@@ -1,5 +1,5 @@
 /**
- * Build _dist: CSS minificado + bundle ESM de js/main.tsx (React externo vía importmap).
+ * Build _dist: CSS bundle (nested modules) + ESM js/main.tsx.
  */
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -10,24 +10,22 @@ import * as esbuild from "esbuild";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "_dist");
 
-function minifyCss(css) {
-  return css
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\s+/g, " ")
-    .replace(/\s*([{}:;,>+~])\s*/g, "$1")
-    .replace(/;}/g, "}")
-    .trim();
-}
-
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(join(dist, "js"), { recursive: true });
 mkdirSync(join(dist, "css"), { recursive: true });
 
-const cssIn = readFileSync(join(root, "css", "app.css"), "utf8");
-const cssOut = minifyCss(cssIn);
-writeFileSync(join(dist, "css", "app.css"), cssOut, "utf8");
+const cssResult = await esbuild.build({
+  absWorkingDir: root,
+  entryPoints: ["css/app.css"],
+  bundle: true,
+  outfile: join(dist, "css", "app.css"),
+  minify: true,
+  logLevel: "info",
+  write: true,
+  metafile: true,
+});
 
-const result = await esbuild.build({
+const jsResult = await esbuild.build({
   absWorkingDir: root,
   entryPoints: ["js/main.tsx"],
   bundle: true,
@@ -43,16 +41,19 @@ const result = await esbuild.build({
   logLevel: "info",
 });
 
+const cssOut = readFileSync(join(dist, "css", "app.css"));
 const jsOut = readFileSync(join(dist, "js", "main.js"));
+const bytesIn =
+  Object.values(cssResult.metafile?.inputs || {}).reduce((s, i) => s + i.bytes, 0) +
+  Object.values(jsResult.metafile?.inputs || {}).reduce((s, i) => s + i.bytes, 0);
+const bytesOut = cssOut.byteLength + jsOut.byteLength;
 const meta = {
   builtAt: new Date().toISOString(),
   mode: "bundle",
-  entry: "js/main.tsx",
+  entry: ["css/app.css", "js/main.tsx"],
   files: 2,
-  bytesIn: Buffer.byteLength(cssIn, "utf8") + (result.metafile
-    ? Object.values(result.metafile.inputs).reduce((s, i) => s + i.bytes, 0)
-    : 0),
-  bytesOut: Buffer.byteLength(cssOut, "utf8") + jsOut.byteLength,
+  bytesIn,
+  bytesOut,
   hash: createHash("sha256").update(jsOut).update(cssOut).digest("hex").slice(0, 12),
   outputs: ["_dist/css/app.css", "_dist/js/main.js"],
 };

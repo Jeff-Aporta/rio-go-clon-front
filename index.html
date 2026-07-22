@@ -63,20 +63,14 @@
 
       var m = "dark";
       try {
-        var v =
-          localStorage.getItem(prefix + ":theme") ||
-          localStorage.getItem("storefront:theme") ||
-          localStorage.getItem("riogo:theme");
+        var v = localStorage.getItem(prefix + ":theme");
         if (v === "light" || v === "dark") m = v;
       } catch (e) {}
       document.documentElement.classList.add(m === "dark" ? "sl-theme-dark" : "sl-theme-light");
       document.documentElement.style.colorScheme = m;
 
       try {
-        var raw =
-          localStorage.getItem(prefix + ":brand") ||
-          localStorage.getItem("storefront:brand") ||
-          localStorage.getItem("riogo:brand");
+        var raw = localStorage.getItem(prefix + ":brand");
         if (!raw) return;
         var brand = JSON.parse(raw);
         var themes = brand && brand.themes;

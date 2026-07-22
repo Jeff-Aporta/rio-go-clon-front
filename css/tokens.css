@@ -1,0 +1,55 @@
+/* Tokens + reset */
+:root,
+html.sl-theme-dark {
+  --rg-bg: #0c0f14;
+  --rg-surface: #141a22;
+  --rg-surface-2: #1b2330;
+  --rg-line: rgba(255, 255, 255, 0.08);
+  --rg-text: #f3f5f8;
+  --rg-muted: #9aa6b5;
+  --rg-accent: #f5a623;
+  --rg-accent-2: #ff6b4a;
+  --rg-ok: #3dd68c;
+  --rg-danger: #ff6b6b;
+  --rg-header-h: 64px;
+  --rg-radius: 16px;
+  --rg-header-bg: rgba(12, 15, 20, 0.82);
+  --rg-price-bar: linear-gradient(90deg, #2a313c, #1e2530);
+  --rg-hero-caption: rgba(8, 10, 14, 0.78);
+  --sl-color-primary-600: #f5a623;
+  --sl-color-primary-500: #f5a623;
+  --sl-font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+html.sl-theme-light {
+  --rg-bg: #f4f1ea;
+  --rg-surface: #ffffff;
+  --rg-surface-2: #ebe6dc;
+  --rg-line: rgba(20, 24, 32, 0.1);
+  --rg-text: #1a1f29;
+  --rg-muted: #667084;
+  --rg-header-bg: rgba(244, 241, 234, 0.9);
+  --rg-price-bar: linear-gradient(90deg, #2f3540, #232933);
+  --rg-hero-caption: rgba(255, 255, 255, 0.92);
+  color-scheme: light;
+  & .theme-toggle:hover { background: rgba(0, 0, 0, 0.06); }
+  & .hero-caption { color: #1a1f29; border-color: rgba(0, 0, 0, 0.08); }
+  & .hero-price { background: rgba(245, 166, 35, 0.16); }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--rg-bg);
+  color: var(--rg-text);
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+#root { height: 100%; min-height: 100dvh; }
+
+.money { font-variant-numeric: tabular-nums; }
+
+html.embed .dev-footer { display: none; }

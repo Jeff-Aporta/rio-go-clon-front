@@ -38,10 +38,7 @@ import type {
 
 function loadCart(): CartItem[] {
   try {
-    const raw =
-      localStorage.getItem(storageKey("cart")) ||
-      localStorage.getItem("storefront:cart") ||
-      localStorage.getItem("riogo:cart");
+    const raw = localStorage.getItem(storageKey("cart"));
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
@@ -112,7 +109,7 @@ export function App() {
   const [orderView, setOrderView] = useState<Order | { error: string } | null>(null);
   const [adminOrders, setAdminOrders] = useState<Order[]>([]);
   const [adminToken, setAdminToken] = useState(
-    () => localStorage.getItem(storageKey("authJwt")) || localStorage.getItem(storageKey("adminToken")) || localStorage.getItem("riogo:adminToken") || "",
+    () => localStorage.getItem(storageKey("authJwt")) || localStorage.getItem(storageKey("adminToken")) || "",
   );
   const [customer, setCustomer] = useState<Customer>(emptyCustomer);
   const [placing, setPlacing] = useState(false);

@@ -102,10 +102,7 @@ function isBrandIdentity(v: unknown): v is BrandIdentity {
 /** Última identidad de marca vista (evita FOUC mientras llega /api/brand). */
 export function readCachedBrand(): BrandIdentity | null {
   try {
-    const raw =
-      localStorage.getItem(storageKey("brand")) ||
-      localStorage.getItem("storefront:brand") ||
-      localStorage.getItem("riogo:brand");
+    const raw = localStorage.getItem(storageKey("brand"));
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     return isBrandIdentity(parsed) ? parsed : null;

@@ -21,7 +21,7 @@ type Props = {
 const JWT_KEY = "authJwt";
 
 function readJwt(): string {
-  return localStorage.getItem(storageKey(JWT_KEY)) || localStorage.getItem("riogo:adminToken") || "";
+  return localStorage.getItem(storageKey(JWT_KEY)) || "";
 }
 
 function normalizeImgs(list: ProductImage[] | undefined, p: Product): ProductImage[] {
