@@ -1,3 +1,4 @@
+import { bg2font } from "./bg2font";
 import { storageKey } from "./config";
 import type { BrandIdentity, ThemeMode, ThemePalette } from "./types";
 
@@ -71,8 +72,12 @@ export function resolvePalette(
 export function clearInlinePalette(): void {
   const root = document.documentElement;
   for (const cssVar of Object.values(PALETTE_TO_CSS)) root.style.removeProperty(cssVar);
-  root.style.removeProperty("--sl-color-primary-600");
-  root.style.removeProperty("--sl-color-primary-500");
+  root.style.removeProperty("--wa-color-brand-fill-loud");
+  root.style.removeProperty("--wa-color-brand-fill-normal");
+  root.style.removeProperty("--wa-color-brand-50");
+  root.style.removeProperty("--wa-color-brand-60");
+  root.style.removeProperty("--wa-color-brand-on-loud");
+  root.style.removeProperty("--rg-accent-fg");
 }
 
 export function applyPalette(palette: ThemePalette): void {
@@ -82,15 +87,22 @@ export function applyPalette(palette: ThemePalette): void {
     if (val) root.style.setProperty(cssVar, val);
   }
   if (palette.accent) {
-    root.style.setProperty("--sl-color-primary-600", palette.accent);
-    root.style.setProperty("--sl-color-primary-500", palette.accent);
+    const fg = bg2font(palette.accent);
+    root.style.setProperty("--wa-color-brand-fill-loud", palette.accent);
+    root.style.setProperty("--wa-color-brand-fill-normal", palette.accent);
+    root.style.setProperty("--wa-color-brand-50", palette.accent);
+    root.style.setProperty("--wa-color-brand-60", palette.accent);
+    root.style.setProperty("--wa-color-brand-on-loud", fg);
+    root.style.setProperty("--rg-accent-fg", fg);
   }
 }
 
 export function applyModeClasses(mode: ThemeMode): void {
-  document.documentElement.classList.toggle("sl-theme-dark", mode === "dark");
-  document.documentElement.classList.toggle("sl-theme-light", mode === "light");
-  document.documentElement.style.colorScheme = mode;
+  const root = document.documentElement;
+  root.classList.add("wa-theme-shoelace", "wa-palette-shoelace");
+  root.classList.toggle("wa-dark", mode === "dark");
+  root.classList.toggle("wa-light", mode === "light");
+  root.style.colorScheme = mode;
 }
 
 function isBrandIdentity(v: unknown): v is BrandIdentity {
@@ -147,6 +159,7 @@ export function applyBrandTheme(brand: BrandIdentity | null | undefined, mode: T
     // Deja ganar el CSS base (sin overrides inline viejos)
     clearInlinePalette();
     const base = BASE_THEMES[mode];
+    document.documentElement.style.setProperty("--rg-accent-fg", bg2font(base.accent));
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) themeMeta.setAttribute("content", base.bg);
   } else {
@@ -157,6 +170,7 @@ export function applyBrandTheme(brand: BrandIdentity | null | undefined, mode: T
   }
 
   if (brand?.name) document.title = `${brand.name} — Pedidos`;
+  else document.title = "Dulce Clic — Pedidos online";
 }
 
 /** Primera pintura: cache LS → CSS vars (antes de React / fetch). */

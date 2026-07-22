@@ -171,11 +171,29 @@ export type SocialLink = {
   icon?: string;
 };
 
+export type FooterColumnLink = { label: string; url: string };
+
+export type FooterColumn = {
+  title: string;
+  links?: FooterColumnLink[];
+  note?: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+  phone?: string;
+  email?: string;
+  whatsappLabel?: string;
+  whatsappUrl?: string;
+  social?: SocialLink[];
+};
+
 export type FooterSocialProps = {
   title?: string;
   tagline?: string;
   logoUrl?: string;
+  /** Legacy: solo iconos sociales centrados. */
   links?: SocialLink[];
+  /** Layout 3 columnas (Don Jacobo). */
+  columns?: FooterColumn[];
   legal?: string;
 };
 
@@ -189,8 +207,38 @@ export type RichTextProps = {
   imageSide?: "left" | "right";
   signature?: string;
   logoUrl?: string;
-  tone?: "brand" | "surface";
+  tone?: "brand" | "surface" | "promo";
+  /** Hex/rgb; se aplica con ~90% alpha vía color-mix contra --rg-bg. */
   panelColor?: string;
+  panelAlpha?: number;
+  ctaLabel?: string;
+  ctaTab?: string;
+};
+
+export type FeatureCardItem = {
+  title: string;
+  body?: string;
+  lead?: string;
+  priceHint?: string;
+  image?: string;
+  imageSide?: "left" | "right";
+  panelColor?: string;
+  panelAlpha?: number;
+  tone?: "brand" | "surface" | "promo";
+  ctaLabel?: string;
+  hrefTab?: string;
+};
+
+/** Split texto + YouTube (Don Jacobo “Tradición Familiar”). */
+export type VideoSectionProps = {
+  title?: string;
+  /** HTML permitido: <p>, <strong>, <em>, <br> (contenido de SITE). */
+  body?: string;
+  highlight?: string;
+  url?: string;
+  poster?: string;
+  ctaLabel?: string;
+  ctaTab?: string;
 };
 
 export type LandingSection =
@@ -199,12 +247,12 @@ export type LandingSection =
   | { type: "hero"; props: { title: string; body?: string; image?: string; ctaLabel?: string; ctaTab?: string } }
   | { type: "popular-products"; props?: { title?: string; limit?: number } }
   | { type: "rich-text"; props: RichTextProps }
-  | { type: "video"; props: { title?: string; url?: string; poster?: string; body?: string } }
+  | { type: "video"; props: VideoSectionProps }
   | {
       type: "feature-cards";
       props: {
         title?: string;
-        items: Array<{ title: string; body?: string; image?: string; priceHint?: string; hrefTab?: string }>;
+        items: FeatureCardItem[];
       };
     }
   | { type: "footer-social"; props?: FooterSocialProps }

@@ -50,7 +50,7 @@ export function AdminPanel({ adminToken, setAdminToken, loadAdmin, adminOrders, 
           {err ? <span className="admin-auth-err">{err}</span> : null}
         </div>
       ) : (
-        <sl-button variant="primary" onClick={loadAdmin}>Listar pedidos</sl-button>
+        <wa-button variant="brand" onClick={loadAdmin}>Listar pedidos</wa-button>
       )}
       <div className="order-list">
         {adminOrders.map((o) => (
@@ -67,7 +67,7 @@ export function AdminPanel({ adminToken, setAdminToken, loadAdmin, adminOrders, 
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
               {STATUSES.map((s) => (
-                <sl-button key={s} size="small" onClick={() => patchStatus(o.id, s)}>{s}</sl-button>
+                <wa-button key={s} size="s" onClick={() => patchStatus(o.id, s)}>{s}</wa-button>
               ))}
             </div>
           </div>

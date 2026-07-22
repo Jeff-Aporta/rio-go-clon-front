@@ -1,39 +1,42 @@
 <!DOCTYPE html>
-<html lang="es" class="sl-theme-dark">
+<html lang="es" class="wa-theme-shoelace wa-palette-shoelace wa-dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>RIO GO 24 — Pedidos</title>
-  <meta name="description" content="Carta digital RIO GO 24 Armenia — pide online." />
-  <meta name="keywords" content="RIO GO, Armenia, pedidos, menú, Jeff-Aporta" />
-  <meta name="application-name" content="RIO GO 24" />
-  <meta name="theme-color" content="#0c0f14" />
-  <meta name="app-theme-ls-key" content="riogo:theme" />
-  <meta name="app-icon" content="mdi:hamburger" />
+  <title>Dulce Clic — Pedidos online</title>
+  <meta name="description" content="Pedidos online para tu negocio. Carta digital, carrito y WhatsApp. Desarrollado por Dulce Clic." />
+  <meta name="keywords" content="Dulce Clic, pedidos online, carta digital, storefront, WhatsApp" />
+  <meta name="application-name" content="Dulce Clic" />
+  <meta name="author" content="Dulce Clic" />
+  <meta name="theme-color" content="#0b0712" />
+  <meta name="app-theme-ls-key" content="storefront:theme" />
+  <meta name="app-icon" content="fluent-emoji:artist-palette" />
   <link rel="canonical" href="https://jeff-aporta.github.io/rio-go-clon-front/" />
+  <!-- OG / mensajería: PNG local (WhatsApp/Telegram no confían en SVG remotos) -->
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="es_CO" />
-  <meta property="og:site_name" content="Jeff-Aporta — RIO GO 24" />
-  <meta property="og:title" content="RIO GO 24 — Pedidos" />
-  <meta property="og:description" content="Carta digital RIO GO 24 Armenia — pide online." />
+  <meta property="og:site_name" content="Dulce Clic" />
+  <meta property="og:title" content="Dulce Clic — Pedidos online" />
+  <meta property="og:description" content="Pedidos online para tu negocio. Carta digital, carrito y WhatsApp. Desarrollado por Dulce Clic." />
   <meta property="og:url" content="https://jeff-aporta.github.io/rio-go-clon-front/" />
-  <meta property="og:image" content="https://api.iconify.design/mdi/hamburger.svg?color=%23f5a623&width=512&height=512" />
+  <meta property="og:image" content="https://jeff-aporta.github.io/rio-go-clon-front/assets/og-dulce-clic.png" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="512" />
   <meta property="og:image:height" content="512" />
-  <meta property="og:image:alt" content="RIO GO 24 — carta digital" />
+  <meta property="og:image:alt" content="Dulce Clic — pedidos online" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="RIO GO 24 — Pedidos" />
-  <meta name="twitter:description" content="Carta digital RIO GO 24 Armenia — pide online." />
-  <meta name="twitter:image" content="https://api.iconify.design/mdi/hamburger.svg?color=%23f5a623&width=512&height=512" />
-  <meta name="twitter:image:alt" content="RIO GO 24 — carta digital" />
-  <link rel="icon" href="https://api.iconify.design/mdi/hamburger.svg?color=%23f5a623&width=32&height=32" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="https://api.iconify.design/mdi/hamburger.svg?color=%23f5a623&width=180&height=180" />
+  <meta name="twitter:title" content="Dulce Clic — Pedidos online" />
+  <meta name="twitter:description" content="Pedidos online para tu negocio. Carta digital, carrito y WhatsApp. Desarrollado por Dulce Clic." />
+  <meta name="twitter:image" content="https://jeff-aporta.github.io/rio-go-clon-front/assets/og-dulce-clic.png" />
+  <meta name="twitter:image:alt" content="Dulce Clic — pedidos online" />
+  <link rel="icon" href="assets/icon-dulce-clic.png" type="image/png" sizes="180x180" />
+  <link rel="apple-touch-icon" href="assets/icon-dulce-clic.png" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://esm.sh" crossorigin />
   <link rel="preconnect" href="https://code.iconify.design" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/dark.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Figtree:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@awesome.me/webawesome@3/dist/styles/webawesome.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@awesome.me/webawesome@3/dist/styles/themes/shoelace.css" />
   <link rel="stylesheet" href="_dist/css/app.css" />
   <script>
     (function () {
@@ -44,7 +47,7 @@
           try { return atob(b64); } catch (e2) { return ""; }
         }
       }
-      function readConn() {
+      function readConnFromUrl() {
         try {
           var c = new URLSearchParams(location.search).get("conn");
           if (c) {
@@ -52,20 +55,17 @@
             if (j && (j.apiBase || j.a)) return j;
           }
         } catch (e) {}
-        try {
-          var raw = localStorage.getItem("storefront:conn") || localStorage.getItem("riogo:conn");
-          if (raw) return JSON.parse(raw);
-        } catch (e) {}
         return null;
       }
-      var conn = readConn();
-      var prefix = (conn && (conn.storagePrefix || conn.p || conn.appId || conn.i)) || "riogo";
+      var conn = readConnFromUrl();
+      var onHub = !conn;
+      var prefix = (conn && (conn.storagePrefix || conn.p || conn.appId || conn.i)) || "storefront";
 
       var m = "dark";
       try {
-        var v = localStorage.getItem(prefix + ":theme");
+        var v = localStorage.getItem(prefix + ":theme") || localStorage.getItem("storefront:theme");
         if (v === "light" || v === "dark") m = v;
-        else {
+        else if (!onHub) {
           var brandRaw = localStorage.getItem(prefix + ":brand");
           if (brandRaw) {
             var b0 = JSON.parse(brandRaw);
@@ -73,10 +73,19 @@
           }
         }
       } catch (e) {}
-      document.documentElement.classList.add(m === "dark" ? "sl-theme-dark" : "sl-theme-light");
+      document.documentElement.classList.add("wa-theme-shoelace", "wa-palette-shoelace");
+      document.documentElement.classList.add(m === "dark" ? "wa-dark" : "wa-light");
+      document.documentElement.classList.remove(m === "dark" ? "wa-light" : "wa-dark");
       document.documentElement.style.colorScheme = m;
+      if (onHub) {
+        document.documentElement.setAttribute("data-app", "dulceclic");
+        document.title = "Dulce Clic — Pedidos online";
+        var metaHub = document.querySelector('meta[name="theme-color"]');
+        if (metaHub) metaHub.setAttribute("content", m === "light" ? "#faf5ff" : "#0b0712");
+      }
 
       try {
+        if (onHub || !conn) return;
         var raw = localStorage.getItem(prefix + ":brand");
         if (!raw) return;
         var brand = JSON.parse(raw);
@@ -103,8 +112,10 @@
           if (typeof pal[k] === "string" && pal[k]) root.style.setProperty(map[k], pal[k]);
         }
         if (pal.accent) {
-          root.style.setProperty("--sl-color-primary-600", pal.accent);
-          root.style.setProperty("--sl-color-primary-500", pal.accent);
+          root.style.setProperty("--wa-color-brand-fill-loud", pal.accent);
+          root.style.setProperty("--wa-color-brand-fill-normal", pal.accent);
+          root.style.setProperty("--wa-color-brand-50", pal.accent);
+          root.style.setProperty("--wa-color-brand-60", pal.accent);
         }
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute("content", pal.bg);
@@ -126,7 +137,7 @@
     }
   }
   </script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@awesome.me/webawesome@3/dist-cdn/webawesome.loader.js"></script>
   <script defer src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <script type="module" src="_dist/js/main.js"></script>
 </head>

@@ -1,45 +1,61 @@
-/* Tokens + reset */
+/* Tokens + reset — defaults = identidad Dulce Clic (púrpura + magenta) */
 :root,
-html.sl-theme-dark {
-  --rg-bg: #0c0f14;
-  --rg-surface: #141a22;
-  --rg-surface-2: #1b2330;
-  --rg-line: rgba(255, 255, 255, 0.08);
-  --rg-text: #f3f5f8;
-  --rg-muted: #9aa6b5;
-  --rg-accent: #f5a623;
-  --rg-accent-2: #ff6b4a;
+html.wa-dark {
+  --rg-bg: #0b0712;
+  --rg-surface: #15101c;
+  --rg-surface-2: #1e1628;
+  --rg-line: rgba(255, 255, 255, 0.09);
+  --rg-text: #f5f0fa;
+  --rg-muted: #a89bb8;
+  --rg-accent: #a855f7;
+  --rg-accent-2: #e879f9;
+  /* Texto sobre accent púrpura → claro */
+  --rg-accent-fg: #ffffff;
   --rg-ok: #3dd68c;
   --rg-danger: #ff6b6b;
   --rg-header-h: 64px;
   --rg-radius: 16px;
-  --rg-header-bg: rgba(12, 15, 20, 0.82);
-  --rg-price-bar: linear-gradient(90deg, #2a313c, #1e2530);
-  --rg-hero-caption: rgba(8, 10, 14, 0.78);
-  --sl-color-primary-600: #f5a623;
-  --sl-color-primary-500: #f5a623;
-  --sl-font-sans: "DM Sans", system-ui, sans-serif;
+  --rg-header-bg: rgba(11, 7, 18, 0.88);
+  --rg-price-bar: linear-gradient(90deg, #2a2138, #1a1224);
+  --rg-hero-caption: rgba(8, 6, 14, 0.78);
+  --wa-color-brand-fill-loud: #a855f7;
+  --wa-color-brand-fill-normal: #a855f7;
+  --wa-font-family-body: "DM Sans", system-ui, sans-serif;
   --rg-font: "DM Sans", system-ui, sans-serif;
   --rg-font-display: Syne, "DM Sans", system-ui, sans-serif;
 }
 
-html.sl-theme-light {
-  --rg-bg: #f4f1ea;
+html.wa-light {
+  --rg-bg: #faf5ff;
   --rg-surface: #ffffff;
-  --rg-surface-2: #ebe6dc;
-  --rg-line: rgba(20, 24, 32, 0.1);
-  --rg-text: #1a1f29;
-  --rg-muted: #667084;
-  --rg-header-bg: rgba(244, 241, 234, 0.9);
-  --rg-price-bar: linear-gradient(90deg, #2f3540, #232933);
+  --rg-surface-2: #f3e8ff;
+  --rg-line: rgba(88, 28, 135, 0.12);
+  --rg-text: #1e1033;
+  --rg-muted: #6b5a7a;
+  --rg-accent: #9333ea;
+  --rg-accent-2: #c026d3;
+  --rg-accent-fg: #ffffff;
+  --rg-header-bg: rgba(250, 245, 255, 0.92);
+  --rg-price-bar: linear-gradient(90deg, #3b0764, #2e1065);
   --rg-hero-caption: rgba(255, 255, 255, 0.92);
   color-scheme: light;
-  & .theme-toggle:hover { background: rgba(0, 0, 0, 0.06); }
-  & .hero-caption { color: #1a1f29; border-color: rgba(0, 0, 0, 0.08); }
-  & .hero-price { background: rgba(245, 166, 35, 0.16); }
+  & .theme-toggle:hover { background: rgba(147, 51, 234, 0.08); }
+  & .hero-caption { color: #1e1033; border-color: rgba(88, 28, 135, 0.1); }
+  & .hero-price { background: color-mix(in srgb, var(--rg-accent) 14%, transparent); }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+
+/* ® marca registrada: superíndice pequeño */
+.rg-tm,
+sup.rg-tm {
+  font-size: 0.42em;
+  font-weight: 600;
+  line-height: 0;
+  vertical-align: super;
+  position: relative;
+  top: -0.15em;
+}
 
 html, body {
   margin: 0;
@@ -50,25 +66,59 @@ html, body {
   font-family: var(--rg-font, "DM Sans", system-ui, sans-serif);
 }
 
+/* Primary Web Awesome: tipografía desde bg2font(--rg-accent) */
+wa-button[variant="brand"]::part(base) {
+  color: var(--rg-accent-fg);
+}
+
+/* Identidad Dulce Clic — hub / plataforma (púrpura + magenta) */
+html[data-app="dulceclic"] {
+  --rg-accent: #c084fc;
+  --rg-accent-2: #f0abfc;
+  --rg-accent-fg: #1a0528;
+  --wa-color-brand-fill-loud: #c084fc;
+  --wa-color-brand-fill-normal: #e879f9;
+}
+html.wa-dark[data-app="dulceclic"] {
+  --rg-bg: #09051a;
+  --rg-surface: color-mix(in srgb, #2a1050 55%, #12081f);
+  --rg-surface-2: #2a1548;
+  --rg-line: rgba(232, 121, 249, 0.22);
+  --rg-text: #fdf4ff;
+  --rg-muted: #d8b4fe;
+  --rg-accent: #e879f9;
+  --rg-accent-2: #a78bfa;
+  --rg-accent-fg: #1a0528;
+  --rg-header-bg: rgba(9, 5, 26, 0.72);
+  --wa-color-brand-fill-loud: #e879f9;
+  --wa-color-brand-fill-normal: #c084fc;
+}
+html.wa-light[data-app="dulceclic"] {
+  --rg-accent: #9333ea;
+  --rg-accent-2: #c026d3;
+  --rg-accent-fg: #ffffff;
+  --wa-color-brand-fill-loud: #9333ea;
+  --wa-color-brand-fill-normal: #9333ea;
+}
+
 /* Identidad Don Jacobo — pastelería editorial */
 html[data-app="donjacobo"] {
   --rg-font: "Figtree", "DM Sans", system-ui, sans-serif;
   --rg-font-display: "Cormorant Garamond", Georgia, serif;
   --rg-radius: 12px;
-  --sl-font-sans: "Figtree", "DM Sans", system-ui, sans-serif;
+  --wa-font-family-body: "Figtree", "DM Sans", system-ui, sans-serif;
   font-family: var(--rg-font);
   & .brand h1,
   & .landing-title,
   & .landing-hero-inner h2,
   & .landing-rich-panel-inner h2,
-  & .landing-social-title,
-  & .hub-card-body strong {
+  & .landing-social-title {
     font-family: var(--rg-font-display);
     font-weight: 600;
     letter-spacing: 0.01em;
   }
   & .tab-btn.active {
-    color: #fff;
+    color: var(--rg-accent-fg);
     background: var(--rg-accent);
   }
   & .landing-cta {

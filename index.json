@@ -1,16 +1,17 @@
 {
   "meta": {
-    "title": "RIO GO 24 — Pedidos",
-    "applicationName": "RIO GO 24",
-    "description": "Carta digital RIO GO 24 Armenia — pide online.",
-    "keywords": "RIO GO, Armenia, pedidos, menú, Jeff-Aporta",
+    "title": "Dulce Clic — Pedidos online",
+    "applicationName": "Dulce Clic",
+    "description": "Pedidos online para tu negocio. Carta digital, carrito y WhatsApp. Desarrollado por Dulce Clic.",
+    "keywords": "Dulce Clic, pedidos online, carta digital, storefront, WhatsApp",
     "themeColor": "#0c0f14",
-    "themeLsKey": "riogo:theme",
-    "icon": "mdi:hamburger",
+    "themeLsKey": "storefront:theme",
+    "icon": "fluent-emoji:artist-palette",
+    "iconPng": "https://jeff-aporta.github.io/rio-go-clon-front/assets/og-dulce-clic.png",
     "canonical": "https://jeff-aporta.github.io/rio-go-clon-front/",
-    "ogSiteName": "Jeff-Aporta — RIO GO 24",
-    "ogTitle": "RIO GO 24 — Pedidos",
-    "imageAlt": "RIO GO 24 — carta digital"
+    "ogSiteName": "Dulce Clic",
+    "ogTitle": "Dulce Clic — Pedidos online",
+    "imageAlt": "Dulce Clic — pedidos online"
   },
   "useDist": true,
   "loader": "mjs-module",
@@ -20,13 +21,13 @@
   "styles": ["local:css/app.css"],
   "libs": ["iconify", "loader-mjs"],
   "readme": {
-    "tagline": "clon moderno del menú RIO GO 24 con Shoelace y pedidos en Neon.",
+    "tagline": "Genesis storefront multi-tienda (Dulce Clic) — React, Shoelace, pedidos WhatsApp.",
     "badges": ["github-pages", "react", "typescript"],
     "features": [
-      "Catálogo QUERY con filtro ISS (search, eq, sort, paginación)",
+      "Hub multi-app vía ?conn= (X-App-Id)",
+      "Catálogo QUERY con filtro ISS",
       "Carrito, checkout domicilio y pedido WhatsApp",
-      "UI Shoelace + Iconify + tema claro/oscuro",
-      "Admin productos e imágenes (R2)"
+      "UI Shoelace + Iconify + tema claro/oscuro"
     ]
   }
 }

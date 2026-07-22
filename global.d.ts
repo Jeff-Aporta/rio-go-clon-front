@@ -1,6 +1,6 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes, ReactNode, Ref } from "react";
 
-/** Atributos genéricos para custom elements (Shoelace / Iconify). */
+/** Atributos genéricos para custom elements (Web Awesome / Iconify). */
 type CEProps = Omit<DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>, "ref" | "style"> & {
   children?: ReactNode;
   class?: string;
@@ -21,14 +21,14 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       "iconify-icon": CEProps & { icon?: string; width?: string | number; height?: string | number };
-      "sl-badge": CEProps & { variant?: string; pill?: boolean };
-      "sl-button": CEProps & {
+      "wa-badge": CEProps & { variant?: string; pill?: boolean };
+      "wa-button": CEProps & {
         variant?: string;
         size?: string;
         loading?: boolean | "" | undefined;
         disabled?: boolean;
       };
-      "sl-carousel": CEProps & {
+      "wa-carousel": CEProps & {
         navigation?: boolean;
         pagination?: boolean;
         loop?: boolean;
@@ -37,32 +37,34 @@ declare global {
         "mouse-dragging"?: boolean;
         "slides-per-page"?: number | string;
       };
-      "sl-carousel-item": CEProps;
-      "sl-drawer": CEProps & { label?: string; open?: boolean };
-      "sl-dialog": CEProps & {
+      "wa-carousel-item": CEProps;
+      "wa-drawer": CEProps & { label?: string; open?: boolean };
+      "wa-dialog": CEProps & {
         label?: string;
         open?: boolean;
         "no-header"?: boolean;
       };
-      "sl-input": CEProps & {
+      "wa-input": CEProps & {
         label?: string;
         type?: string;
         value?: string;
         placeholder?: string;
-        clearable?: boolean;
+        "with-clear"?: boolean;
+        size?: string;
         required?: boolean;
       };
-      "sl-option": CEProps & { value?: string };
-      "sl-radio-button": CEProps & { value?: string };
-      "sl-radio-group": CEProps & { label?: string; value?: string };
-      "sl-select": CEProps & {
+      "wa-option": CEProps & { value?: string };
+      "wa-radio-button": CEProps & { value?: string };
+      "wa-radio-group": CEProps & { label?: string; value?: string };
+      "wa-select": CEProps & {
         label?: string;
         value?: string;
         placeholder?: string;
-        clearable?: boolean;
+        "with-clear"?: boolean;
+        size?: string;
       };
-      "sl-spinner": CEProps;
-      "sl-textarea": CEProps & {
+      "wa-spinner": CEProps;
+      "wa-textarea": CEProps & {
         label?: string;
         value?: string;
         rows?: number;

@@ -20,7 +20,7 @@ import { OrderReadyDialog } from "./components/OrderReadyDialog";
 import { AdminCatalog } from "./components/AdminCatalog";
 import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
 import { openOrderWhatsApp } from "./whatsapp";
-import { useSl } from "./hooks/useSl";
+import { useWa } from "./hooks/useWa";
 import { money } from "./money";
 import { CatalogGridDriver, LandingDriver, LocationsDriver } from "./components/SiteDrivers";
 import { resolveSite } from "./site";
@@ -81,7 +81,7 @@ function slValue(e: Event): string {
   return String(t?.value ?? "");
 }
 
-/** Shoelace prohíbe espacios en sl-option value — slug estable sin spaces. */
+/** Web Awesome: wa-option value sin espacios — slug estable. */
 function catSlug(name: string): string {
   return name
     .normalize("NFD")
@@ -117,9 +117,9 @@ export function App() {
   const drawerRef = useRef<HTMLElement | null>(null);
 
   const onSearch = useCallback((e: Event) => setQ(slValue(e)), []);
-  const searchRef = useSl("sl-input", onSearch);
-  const searchClearRef = useSl("sl-clear", useCallback(() => setQ(""), []));
-  const catClearRef = useSl("sl-clear", useCallback(() => setCatFilter(""), []));
+  const searchRef = useWa("wa-input", onSearch);
+  const searchClearRef = useWa("wa-clear", useCallback(() => setQ(""), []));
+  const catClearRef = useWa("wa-clear", useCallback(() => setCatFilter(""), []));
 
   const searchBind = useCallback(
     (el: HTMLElement | null) => {
@@ -254,8 +254,8 @@ export function App() {
     if (!el) return;
     (el as HTMLElement & { open: boolean }).open = !!detail;
     const hide = () => setDetail(null);
-    el.addEventListener("sl-after-hide", hide);
-    return () => el.removeEventListener("sl-after-hide", hide);
+    el.addEventListener("wa-after-hide", hide);
+    return () => el.removeEventListener("wa-after-hide", hide);
   }, [detail]);
 
   const products = catalog?.products ?? [];
@@ -281,7 +281,7 @@ export function App() {
     },
     [catBySlug],
   );
-  const catRef = useSl("sl-change", onCat);
+  const catRef = useWa("wa-change", onCat);
   const catBind = useCallback(
     (el: HTMLElement | null) => {
       catRef(el);
@@ -447,7 +447,7 @@ export function App() {
     if (loading && !brand) {
       return (
         <div className="empty">
-          <sl-spinner style={{ fontSize: "2.5rem" }}></sl-spinner>
+          <wa-spinner style={{ fontSize: "2.5rem" }}></wa-spinner>
           <p>Cargando admin…</p>
         </div>
       );
@@ -495,7 +495,7 @@ export function App() {
         </div>
 
         <div className="header-actions">
-          {toast ? <sl-badge variant="primary" pill>{toast}</sl-badge> : null}
+          {toast ? <wa-badge variant="brand" pill>{toast}</wa-badge> : null}
           <button
             type="button"
             className={`tab-btn cart-btn ${route.tab === "carrito" ? "active" : ""}`}
@@ -512,14 +512,14 @@ export function App() {
 
       {showCatalogToolbar && !loading && !error ? (
         <div className="toolbar">
-          <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable size="small">
-            <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
-          </sl-input>
-          <sl-select ref={catBind} placeholder="Categoría" clearable size="small">
+          <wa-input ref={searchBind} placeholder="Buscar en el menú" with-clear size="s">
+            <iconify-icon slot="start" icon="mdi:magnify"></iconify-icon>
+          </wa-input>
+          <wa-select ref={catBind} placeholder="Categoría" with-clear size="s">
             {categorias.map((c) => (
-              <sl-option key={c} value={catSlug(c)}>{c}</sl-option>
+              <wa-option key={c} value={catSlug(c)}>{c}</wa-option>
             ))}
-          </sl-select>
+          </wa-select>
         </div>
       ) : null}
       </div>
@@ -529,7 +529,7 @@ export function App() {
           <div className="panel-main">
           {loading ? (
             <div className="empty">
-              <sl-spinner style={{ fontSize: "2.5rem" }}></sl-spinner>
+              <wa-spinner style={{ fontSize: "2.5rem" }}></wa-spinner>
               <p>Cargando catálogo…</p>
             </div>
           ) : error ? (
@@ -566,7 +566,7 @@ export function App() {
             <>
               {heroItems.length && !(site.landing?.sections?.some((s) => s.type === "carousel")) ? (
                 <section className="hero">
-                  <sl-carousel
+                  <wa-carousel
                     loop
                     navigation
                     pagination
@@ -578,7 +578,7 @@ export function App() {
                     {heroItems.map((p) => {
                       const blurb = productBlurb(p);
                       return (
-                        <sl-carousel-item key={p.codigoAb}>
+                        <wa-carousel-item key={p.codigoAb}>
                           <div className="hero-slide" onClick={() => setDetail(p)}>
                             <img src={p.imagenUrl || p.imagenMiniUrl || ""} alt={p.nombre} />
                             <div className="hero-shade" aria-hidden="true" />
@@ -588,10 +588,10 @@ export function App() {
                               <span className="hero-price">{money(p.precioUnidad)}</span>
                             </div>
                           </div>
-                        </sl-carousel-item>
+                        </wa-carousel-item>
                       );
                     })}
-                  </sl-carousel>
+                  </wa-carousel>
                 </section>
               ) : null}
 
@@ -656,7 +656,7 @@ export function App() {
         </div>
       </main>
 
-      <sl-drawer ref={drawerRef} label={detail?.nombre || "Producto"} style={{ "--size": "420px" }}>
+      <wa-drawer ref={drawerRef} label={detail?.nombre || "Producto"} style={{ "--size": "420px" }}>
         {detail ? (
           <>
             <div className="detail-body">
@@ -668,9 +668,9 @@ export function App() {
                 {productBlurb(detail) || detail.descripcion || "Sin descripción"}
               </p>
             </div>
-            <sl-button
+            <wa-button
               slot="footer"
-              variant="primary"
+              variant="brand"
               style={{ width: "100%" }}
               onClick={() => {
                 addToCart(detail);
@@ -678,10 +678,10 @@ export function App() {
               }}
             >
               Agregar al carrito
-            </sl-button>
+            </wa-button>
           </>
         ) : null}
-      </sl-drawer>
+      </wa-drawer>
       <OrderReadyDialog
         open={Boolean(orderModal)}
         orderId={orderModal?.id || ""}

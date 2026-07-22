@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode } from "react";
-import { useSl } from "../hooks/useSl";
+import { useWa } from "../hooks/useWa";
 import { money } from "../money";
 import type { CartItem, Customer, StoreDisplay, StorePrices } from "../types";
 
@@ -14,13 +14,13 @@ type Props = {
 
 export function Field({ label, value, onChange, required, type = "text", className }: Props) {
   const handler = useCallback((e: Event) => onChange(e), [onChange]);
-  const ref = useSl("sl-input", handler);
+  const ref = useWa("wa-input", handler);
   const reqProps = required === true ? { required: true as const } : {};
   const wrap = (node: ReactNode) => (className ? <div className={className}>{node}</div> : node);
   if (type === "textarea") {
-    return wrap(<sl-textarea ref={ref} label={label} value={value} rows={2} {...reqProps}></sl-textarea>);
+    return wrap(<wa-textarea ref={ref} label={label} value={value} rows={2} {...reqProps}></wa-textarea>);
   }
-  return wrap(<sl-input ref={ref} label={label} value={value} {...reqProps}></sl-input>);
+  return wrap(<wa-input ref={ref} label={label} value={value} {...reqProps}></wa-input>);
 }
 
 type CartProps = {
@@ -61,7 +61,7 @@ export function CartPanel({
         <div className="empty empty--panel">
           <iconify-icon icon="mdi:cart-off"></iconify-icon>
           <p>Aún no hay productos</p>
-          <sl-button variant="primary" onClick={() => go("menu")}>Ver menú</sl-button>
+          <wa-button variant="brand" onClick={() => go("menu")}>Ver menú</wa-button>
         </div>
       ) : (
         <div className="cart-layout">
@@ -112,15 +112,15 @@ export function CartPanel({
               <div className="totals-row"><span>Domicilio</span><span>{money(deliveryFee)}</span></div>
               <div className="grand"><span>Total</span><span>{money(total)}</span></div>
             </div>
-            <sl-button
-              variant="primary"
-              size="large"
+            <wa-button
+              variant="brand"
+              size="l"
               className="checkout-submit"
               {...(placing ? { loading: true as const } : {})}
               onClick={placeOrder}
             >
               Hacer el pedido por WhatsApp
-            </sl-button>
+            </wa-button>
           </div>
         </div>
       )}

@@ -11,7 +11,7 @@ export function OrderPanel({ order, orderId, onBack }: Props) {
   if (!order) {
     return (
       <div className="empty">
-        <sl-spinner></sl-spinner>
+        <wa-spinner></wa-spinner>
         <p>Cargando pedido #{orderId}…</p>
       </div>
     );
@@ -21,7 +21,7 @@ export function OrderPanel({ order, orderId, onBack }: Props) {
       <div className="empty">
         <iconify-icon icon="mdi:alert"></iconify-icon>
         <p>{order.error}</p>
-        <sl-button onClick={onBack}>Volver</sl-button>
+        <wa-button onClick={onBack}>Volver</wa-button>
       </div>
     );
   }
@@ -34,7 +34,7 @@ export function OrderPanel({ order, orderId, onBack }: Props) {
           <h2 style={{ margin: "0 0 6px", fontFamily: "Syne, sans-serif" }}>Pedido #{order.id}</h2>
           <span className={`status-pill ${order.status}`}>{order.status}</span>
         </div>
-        <sl-button size="small" onClick={onBack}>Volver</sl-button>
+        <wa-button size="s" onClick={onBack}>Volver</wa-button>
       </div>
       <div className="checkout-box" style={{ marginBottom: 16 }}>
         <div><strong>{String(cust.nombre || "Cliente")}</strong></div>

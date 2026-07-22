@@ -1,5 +1,6 @@
 import type { Product } from "../types";
 import { money } from "../money";
+import { tmText } from "../tm";
 
 type Props = {
   p: Product;
@@ -55,7 +56,7 @@ export function ProductCard({ p, qty, onOpen, onAdd, onSetQty, layout = "rail", 
       </div>
       <div className="product-card-body">
         {showCategory && p.categoria ? <span className="product-card-cat">{p.categoria}</span> : null}
-        <h4>{p.nombre}</h4>
+        <h4>{tmText(p.nombre)}</h4>
         <div className="product-card-price">
           <span className="money">{money(p.precioUnidad)}</span>
           {layout === "rail" ? (

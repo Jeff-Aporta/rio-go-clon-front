@@ -2,7 +2,7 @@
   "name": "rio-go-clon-front",
   "version": "1.0.0",
   "private": true,
-  "description": "App para carta digital y pedidos de tienda (clon RIO GO 24).",
+  "description": "Genesis storefront Dulce Clic — pedidos online multi-tienda.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -12,12 +12,14 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "node scripts/build.mjs",
-    "build:check": "npm run typecheck && npm run build"
+    "build:check": "npm run typecheck && npm run build",
+    "test": "tsx --test tests/**/*.test.ts"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "esbuild": "^0.25.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="https://api.iconify.design/mdi/storefront-outline.svg?color=%23f5a623&width=96&height=96" width="96" height="96" alt="Storefront genesis" />
+  <img src="assets/og-dulce-clic.png" width="96" height="96" alt="Dulce Clic" />
 </p>
 
 <h1 align="center">rio-go-clon-front</h1>
 
-<p align="center"><strong>Genesis storefront</strong> — una sola app web; el resto de tiendas la embebe por <code>iframe</code> + <code>?conn=</code>.</p>
+<p align="center"><strong>Genesis storefront · Dulce Clic</strong> — una sola app web; el resto de tiendas la embebe por <code>iframe</code> + <code>?conn=</code>.</p>
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-2ea44f?logo=githubpages&logoColor=white)](https://jeff-aporta.github.io/rio-go-clon-front/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -76,11 +76,14 @@ https://jeff-aporta.github.io/rio-go-clon-front/?conn=eyJhcGlCYXNlIjoiaHR0cHM6Ly
 
 ```bash
 npm ci
+npm test          # guardrails (bg2font, CSS, storage) — ver ../docs/LLM.md
 npm run build:check
 ```
 
 Push a `main` → GitHub Pages publica `_dist`.
 
+Reglas para agentes: [`docs/LLM.md`](../docs/LLM.md).
+
 ## Stack
 
-React 18 · TypeScript · esbuild · Shoelace · Iconify · GitHub Pages
+React 18 · TypeScript · esbuild · Web Awesome · Iconify · GitHub Pages

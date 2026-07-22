@@ -7,7 +7,7 @@ export function DevFooter() {
   return (
     <footer className="dev-footer">
       <a href={href} target="_blank" rel="noopener noreferrer" className="dev-footer-link">
-        <iconify-icon icon="mdi:whatsapp" width="14" height="14"></iconify-icon>
+        <iconify-icon icon="mdi:whatsapp" width="12" height="12"></iconify-icon>
         <span>
           Desarrollado por <strong>{DEV_BRAND}</strong>
         </span>

@@ -23,9 +23,26 @@ export function AppDirectory() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("sl-theme-dark", theme === "dark");
-    document.documentElement.classList.toggle("sl-theme-light", theme === "light");
-    document.documentElement.style.colorScheme = theme;
+    /* Hub = Dulce Clic (púrpura/magenta); no heredar data-app de la última tienda */
+    const root = document.documentElement;
+    root.setAttribute("data-app", "dulceclic");
+    root.classList.add("wa-theme-shoelace", "wa-palette-shoelace");
+    root.classList.toggle("wa-dark", theme === "dark");
+    root.classList.toggle("wa-light", theme === "light");
+    root.style.colorScheme = theme;
+    /* Quitar overrides inline de brand de tienda (si quedaron) */
+    for (const p of [
+      "--rg-bg", "--rg-surface", "--rg-surface-2", "--rg-line", "--rg-text", "--rg-muted",
+      "--rg-accent", "--rg-accent-2", "--rg-accent-fg", "--rg-ok", "--rg-danger",
+      "--rg-header-bg", "--rg-price-bar", "--rg-hero-caption",
+      "--wa-color-brand-fill-loud", "--wa-color-brand-fill-normal",
+      "--wa-color-brand-50", "--wa-color-brand-60", "--wa-color-brand-on-loud",
+    ]) {
+      root.style.removeProperty(p);
+    }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "light" ? "#faf5ff" : "#0b0712");
+    document.title = "Dulce Clic — Pedidos online";
     try {
       localStorage.setItem("storefront:theme", theme);
     } catch {
@@ -59,9 +76,9 @@ export function AppDirectory() {
       <div className="app-top">
         <header className="app-header hub-header">
           <div className="header-left">
-            <iconify-icon icon="mdi:storefront-outline" width="28" height="28"></iconify-icon>
+            <iconify-icon className="hub-logo" icon="fluent-emoji:artist-palette" width="32" height="32"></iconify-icon>
             <div>
-              <strong className="brand-name">Storefront</strong>
+              <strong className="brand-name">Dulce Clic</strong>
               <p className="hub-sub">Elige una tienda</p>
             </div>
           </div>
@@ -107,7 +124,6 @@ export function AppDirectory() {
                     <strong>{a.name}</strong>
                     {a.tagline ? <span className="hub-muted">{a.tagline}</span> : null}
                     {a.city ? <span className="hub-city">{a.city}</span> : null}
-                    <span className="hub-id">{a.id}</span>
                   </span>
                   <iconify-icon className="hub-chevron" icon="mdi:chevron-right" width="22" height="22"></iconify-icon>
                 </button>

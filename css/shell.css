@@ -140,7 +140,7 @@
   transition: 0.15s ease;
   &:hover { color: var(--rg-text); background: rgba(127, 127, 127, 0.12); }
   &.active {
-    color: #111;
+    color: var(--rg-accent-fg);
     background: linear-gradient(135deg, var(--rg-accent), var(--rg-accent-2));
     & .badge { background: rgba(0, 0, 0, 0.25); }
   }
@@ -206,22 +206,24 @@
 .dev-footer {
   flex: 0 0 auto;
   margin-top: auto;
-  padding: 56px 0 20px;
+  padding: 6px 0 8px;
   text-align: center;
   width: 100%;
+  line-height: 1;
+  min-height: 0;
   .dev-footer-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     color: var(--rg-muted);
     text-decoration: none;
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     font-weight: 500;
     letter-spacing: 0.02em;
-    opacity: 0.72;
+    opacity: 0.45;
     transition: opacity 0.15s ease, color 0.15s ease;
-    & strong { font-weight: 700; color: inherit; }
-    &:hover { opacity: 1; color: var(--rg-accent); }
+    & strong { font-weight: 650; color: inherit; }
+    &:hover { opacity: 0.85; color: var(--rg-accent); }
   }
 }
 
@@ -237,9 +239,9 @@
   background: var(--rg-header-bg);
   backdrop-filter: blur(14px);
   z-index: 19;
-  & sl-input, & sl-select {
-    --sl-input-height-small: 32px;
-    --sl-input-font-size-small: 0.85rem;
+  & wa-input, & wa-select {
+    --wa-form-control-height-s: 32px;
+    --wa-form-control-font-size-s: 0.85rem;
     min-width: 0;
     width: 100%;
     max-width: 100%;
@@ -274,10 +276,10 @@
   .brand h1 { font-size: 0.95rem; }
   .tab-btn span.label { display: none; }
   .header-actions { gap: 4px; }
-  .panel-scroll { padding: 12px 12px 20px; }
+  .panel-scroll { padding: 12px 12px 8px; }
   .toolbar { padding: 4px 12px; gap: 6px; }
 }
 
 @media (min-width: 640px) {
-  .panel-scroll { padding: 18px 20px 24px; }
+  .panel-scroll { padding: 18px 20px 10px; }
 }

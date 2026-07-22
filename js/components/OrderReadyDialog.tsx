@@ -38,12 +38,12 @@ export function OrderReadyDialog({
       e.preventDefault();
       onClose();
     };
-    el.addEventListener("sl-request-close", onReq);
-    return () => el.removeEventListener("sl-request-close", onReq);
+    el.addEventListener("wa-request-close", onReq);
+    return () => el.removeEventListener("wa-request-close", onReq);
   }, [onClose]);
 
   return (
-    <sl-dialog ref={ref} label={reused ? "Pedido ya registrado" : "Pedido creado"} className="order-ready-dialog">
+    <wa-dialog ref={ref} label={reused ? "Pedido ya registrado" : "Pedido creado"} className="order-ready-dialog">
       <div className="order-ready-body">
         <p className="order-ready-id">
           Pedido <strong>#{orderId}</strong>
@@ -61,20 +61,20 @@ export function OrderReadyDialog({
         )}
       </div>
       <div slot="footer" className="order-ready-actions">
-        <sl-button variant="default" onClick={onClearCart}>
+        <wa-button variant="default" onClick={onClearCart}>
           Vaciar carrito
-        </sl-button>
-        <sl-button variant="default" onClick={onViewOrder}>
+        </wa-button>
+        <wa-button variant="default" onClick={onViewOrder}>
           Ver pedido
-        </sl-button>
-        <sl-button
-          variant="primary"
+        </wa-button>
+        <wa-button
+          variant="brand"
           {...(sending ? { loading: true as const } : {})}
           onClick={onSendWhatsApp}
         >
           Enviar por WhatsApp
-        </sl-button>
+        </wa-button>
       </div>
-    </sl-dialog>
+    </wa-dialog>
   );
 }

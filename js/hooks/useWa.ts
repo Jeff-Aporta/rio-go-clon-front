@@ -1,10 +1,10 @@
 import { useEffect, useRef, type RefCallback } from "react";
 
 /**
- * Bind Shoelace events via callback ref (React 18 no soporta onsl-* bien).
+ * Bind Web Awesome events via callback ref (React 18 no soporta onwa-* bien).
  * Usa handlerRef para no re-bind en cada render.
  */
-export function useSl(
+export function useWa(
   eventName: string,
   handler: ((ev: Event) => void) | undefined,
 ): RefCallback<HTMLElement | null> {

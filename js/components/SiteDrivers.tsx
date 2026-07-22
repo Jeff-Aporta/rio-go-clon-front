@@ -1,6 +1,8 @@
-import type { CarouselSlide, LocationsHub, Product } from "../types";
+import type { CarouselSlide, FeatureCardItem, FooterColumn, LocationsHub, Product } from "../types";
 import type { SiteConfig, SiteLocation } from "../site";
 import { popularProducts, resolveCarouselSlides } from "../site";
+import { panelBg } from "../panelBg";
+import { tmHtml, tmText } from "../tm";
 import { ProductCard } from "./ProductCard";
 
 type Props = {
@@ -17,6 +19,85 @@ type Props = {
 
 function asStr(v: unknown): string {
   return typeof v === "string" ? v : "";
+}
+
+/** Body de SITE: HTML simple o texto plano. */
+function RichBody({ body, className }: { body: string; className?: string }) {
+  if (!body) return null;
+  if (/<[a-z]/i.test(body)) {
+    return <div className={className} dangerouslySetInnerHTML={{ __html: tmHtml(body) }} />;
+  }
+  return <p className={className}>{tmText(body)}</p>;
+}
+
+type SplitPromoProps = {
+  title?: string;
+  body?: string;
+  lead?: string;
+  priceHint?: string;
+  image?: string;
+  imageAlt?: string;
+  imageSide?: "left" | "right";
+  tone?: string;
+  panelColor?: string;
+  panelAlpha?: number;
+  signature?: string;
+  logoUrl?: string;
+  ctaLabel?: string;
+  onCta?: () => void;
+  /** brand gratitud: rule al final; promo: rule bajo el título */
+  ruleAfterTitle?: boolean;
+};
+
+function SplitPromo({
+  title,
+  body,
+  lead,
+  priceHint,
+  image,
+  imageAlt,
+  imageSide = "left",
+  tone = "promo",
+  panelColor,
+  panelAlpha = 90,
+  signature,
+  logoUrl,
+  ctaLabel,
+  onCta,
+  ruleAfterTitle = true,
+}: SplitPromoProps) {
+  const imageRight = imageSide === "right";
+  const bg = panelColor
+    ? panelBg(panelColor, panelAlpha)
+    : tone === "brand"
+      ? panelBg("#c7253c", panelAlpha)
+      : undefined;
+  return (
+    <section className={`landing-block landing-rich landing-rich--split tone-${tone}${imageRight ? " image-right" : ""}`}>
+      {image ? (
+        <div className="landing-rich-media">
+          <img src={image} alt={imageAlt || title || ""} />
+        </div>
+      ) : null}
+      <div className="landing-rich-panel" style={bg ? { background: bg } : undefined}>
+        <div className="landing-rich-panel-inner">
+          {title ? <h2>{tmText(title)}</h2> : null}
+          {ruleAfterTitle ? <hr className="landing-rich-rule" /> : null}
+          {lead ? <p className="landing-rich-lead">{tmText(lead)}</p> : null}
+          <RichBody body={body || ""} className="landing-rich-body" />
+          {priceHint ? <p className="landing-rich-price">{tmText(priceHint)}</p> : null}
+          {signature ? <span className="landing-rich-sign">{signature}</span> : null}
+          {logoUrl ? <img className="landing-rich-logo" src={logoUrl} alt="" /> : null}
+          {!ruleAfterTitle ? <hr className="landing-rich-rule" /> : null}
+          {ctaLabel && onCta ? (
+            <button type="button" className={`landing-cta${tone === "promo" ? " landing-cta--bakery" : ""}`} onClick={onCta}>
+              {ctaLabel}
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function slideHasOverlay(slide: CarouselSlide): boolean {
@@ -96,12 +177,12 @@ export function LandingDriver({
             if (!slides.length) return null;
             return (
               <section key={idx} className="landing-block landing-carousel">
-                <sl-carousel navigation pagination autoplay className="hero-carousel">
+                <wa-carousel navigation pagination autoplay className="hero-carousel">
                   {slides.map((slide) => {
                     const clickable = !!(slide.hrefUrl || slide.hrefTab || slide.codigoAb);
                     const kind = slide.codigoAb ? "hero-slide--product" : "hero-slide--banner";
                     return (
-                      <sl-carousel-item key={slide.id || slide.imageUrl}>
+                      <wa-carousel-item key={slide.id || slide.imageUrl}>
                         {clickable ? (
                           <button
                             type="button"
@@ -115,10 +196,10 @@ export function LandingDriver({
                             <SlideContent slide={slide} />
                           </div>
                         )}
-                      </sl-carousel-item>
+                      </wa-carousel-item>
                     );
                   })}
-                </sl-carousel>
+                </wa-carousel>
               </section>
             );
           }
@@ -127,7 +208,7 @@ export function LandingDriver({
             return (
               <section key={idx} className="landing-block landing-padded">
                 <p className="landing-kicker">Colecciones</p>
-                {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
+                {asStr(props.title) ? <h2 className="landing-title">{tmText(asStr(props.title))}</h2> : null}
                 <div className="cat-tiles">
                   {categorias.map((c) => (
                     <button key={c} type="button" className="cat-tile" onClick={() => onGoTab("menu")}>
@@ -144,8 +225,8 @@ export function LandingDriver({
               <section key={idx} className="landing-block landing-hero">
                 <div className="landing-hero-inner">
                   <p className="landing-kicker">Pedido online</p>
-                  <h2>{asStr(props.title)}</h2>
-                  {asStr(props.body) ? <p>{asStr(props.body)}</p> : null}
+                  <h2>{tmText(asStr(props.title))}</h2>
+                  {asStr(props.body) ? <p>{tmText(asStr(props.body))}</p> : null}
                   {asStr(props.ctaLabel) ? (
                     <button type="button" className="landing-cta" onClick={() => onGoTab(asStr(props.ctaTab) || "menu")}>
                       {asStr(props.ctaLabel)}
@@ -161,7 +242,7 @@ export function LandingDriver({
             return (
               <section key={idx} className="landing-block landing-padded">
                 <p className="landing-kicker">Destacados</p>
-                <h2 className="landing-title">{asStr(props.title) || "Populares"}</h2>
+                <h2 className="landing-title">{tmText(asStr(props.title) || "Populares")}</h2>
                 <div className="product-grid uninterrupted">
                   {list.map((p) => (
                     <ProductCard
@@ -187,28 +268,29 @@ export function LandingDriver({
             const signature = asStr(props.signature);
             const logoUrl = asStr(props.logoUrl);
             const tone = asStr(props.tone) || (layout === "split" ? "brand" : "surface");
-            const imageRight = asStr(props.imageSide) === "right";
+            const imageSide = (asStr(props.imageSide) === "right" ? "right" : "left") as "left" | "right";
+            const panelColor = asStr(props.panelColor);
+            const ctaLabel = asStr(props.ctaLabel);
+            const alpha = typeof props.panelAlpha === "number" ? props.panelAlpha : 90;
 
             if (layout === "split" && image) {
-              const panelColor = asStr(props.panelColor);
               return (
-                <section
+                <SplitPromo
                   key={idx}
-                  className={`landing-block landing-rich landing-rich--split tone-${tone}${imageRight ? " image-right" : ""}`}
-                >
-                  <div className="landing-rich-media">
-                    <img src={image} alt={asStr(props.imageAlt) || title || ""} />
-                  </div>
-                  <div className="landing-rich-panel" style={panelColor ? { background: panelColor } : undefined}>
-                    <div className="landing-rich-panel-inner">
-                      {title ? <h2>{title}</h2> : null}
-                      {body ? <p>{body}</p> : null}
-                      {signature ? <span className="landing-rich-sign">{signature}</span> : null}
-                      {logoUrl ? <img className="landing-rich-logo" src={logoUrl} alt="" /> : null}
-                      <hr className="landing-rich-rule" />
-                    </div>
-                  </div>
-                </section>
+                  title={title}
+                  body={body}
+                  image={image}
+                  imageAlt={asStr(props.imageAlt)}
+                  imageSide={imageSide}
+                  tone={tone}
+                  panelColor={panelColor || (tone === "brand" ? "#c7253c" : undefined)}
+                  panelAlpha={alpha}
+                  signature={signature}
+                  logoUrl={logoUrl}
+                  ctaLabel={ctaLabel}
+                  onCta={ctaLabel ? () => onGoTab(asStr(props.ctaTab) || "menu") : undefined}
+                  ruleAfterTitle={tone === "promo"}
+                />
               );
             }
 
@@ -220,50 +302,154 @@ export function LandingDriver({
             );
           }
 
-          case "video":
-            return (
-              <section key={idx} className="landing-block landing-padded landing-video">
-                {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
-                {asStr(props.url) ? (
-                  <div className="video-frame">
-                    <iframe title={asStr(props.title) || "video"} src={asStr(props.url)} allowFullScreen loading="lazy" />
-                  </div>
-                ) : asStr(props.poster) ? (
-                  <div className="video-poster">
-                    <img src={asStr(props.poster)} alt="" />
-                    {asStr(props.body) ? <p>{asStr(props.body)}</p> : null}
-                  </div>
-                ) : asStr(props.body) ? (
-                  <p>{asStr(props.body)}</p>
-                ) : null}
-              </section>
-            );
-
           case "feature-cards": {
-            const items = Array.isArray(props.items) ? (props.items as Array<Record<string, string>>) : [];
+            const items = Array.isArray(props.items) ? (props.items as FeatureCardItem[]) : [];
             return (
-              <section key={idx} className="landing-block landing-padded">
-                {asStr(props.title) ? <h2 className="landing-title">{asStr(props.title)}</h2> : null}
-                <div className="feature-cards">
-                  {items.map((it, i) => (
-                    <button key={i} type="button" className="feature-card" onClick={() => onGoTab(it.hrefTab || "menu")}>
-                      {it.image ? <img src={it.image} alt="" /> : null}
-                      <strong>{it.title}</strong>
-                      {it.body ? <span>{it.body}</span> : null}
-                      {it.priceHint ? <em>{it.priceHint}</em> : null}
-                    </button>
-                  ))}
+              <div key={idx} className="landing-feature-splits">
+                {asStr(props.title) ? (
+                  <div className="landing-padded">
+                    <h2 className="landing-title">{asStr(props.title)}</h2>
+                  </div>
+                ) : null}
+                {items.map((it, i) => {
+                  const side =
+                    it.imageSide === "left" || it.imageSide === "right"
+                      ? it.imageSide
+                      : i % 2 === 1
+                        ? "right"
+                        : "left";
+                  const tone = it.tone || "promo";
+                  const panelColor = it.panelColor || (tone === "promo" ? "#f7dcd3" : tone === "brand" ? "#c7253c" : undefined);
+                  return (
+                    <SplitPromo
+                      key={i}
+                      title={it.title}
+                      lead={it.lead}
+                      body={it.body}
+                      priceHint={it.priceHint}
+                      image={it.image}
+                      imageSide={side}
+                      tone={tone}
+                      panelColor={panelColor}
+                      panelAlpha={typeof it.panelAlpha === "number" ? it.panelAlpha : 100}
+                      ctaLabel={it.ctaLabel || "Descúbrela aquí"}
+                      onCta={() => onGoTab(it.hrefTab || "menu")}
+                      ruleAfterTitle
+                    />
+                  );
+                })}
+              </div>
+            );
+          }
+
+          case "video": {
+            const title = asStr(props.title);
+            const body = asStr(props.body);
+            const highlight = asStr(props.highlight);
+            const url = asStr(props.url);
+            const poster = asStr(props.poster);
+            const ctaLabel = asStr(props.ctaLabel);
+            const ctaTab = asStr(props.ctaTab) || "menu";
+            return (
+              <section key={idx} className="landing-block landing-video">
+                <div className="landing-video-grid">
+                  <div className="landing-video-copy">
+                    {title ? <h2>{tmText(title)}</h2> : null}
+                    <RichBody body={body} className="landing-video-body" />
+                    {highlight ? <p className="landing-video-highlight">{tmText(highlight)}</p> : null}
+                    {ctaLabel ? (
+                      <button type="button" className="landing-cta landing-cta--bakery" onClick={() => onGoTab(ctaTab)}>
+                        {ctaLabel}
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="landing-video-media">
+                    {url ? (
+                      <div className="landing-video-frame">
+                        <iframe
+                          title={title || "video"}
+                          src={url}
+                          allow="autoplay; encrypted-media; picture-in-picture"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : poster ? (
+                      <img className="landing-video-poster" src={poster} alt="" />
+                    ) : null}
+                  </div>
                 </div>
               </section>
             );
           }
 
           case "footer-social": {
+            const columns = Array.isArray(props.columns) ? (props.columns as FooterColumn[]) : [];
             const links = Array.isArray(props.links) ? (props.links as Array<Record<string, string>>) : [];
             const title = asStr(props.title);
             const tagline = asStr(props.tagline);
             const logoUrl = asStr(props.logoUrl);
             const legal = asStr(props.legal);
+
+            if (columns.length) {
+              return (
+                <footer key={idx} className="landing-block landing-social landing-social--columns">
+                  <div className="landing-footer-grid">
+                    {columns.map((col, ci) => (
+                      <div key={ci} className="landing-footer-col">
+                        {col.title ? <h3>{col.title}</h3> : null}
+                        {col.links?.length ? (
+                          <ul>
+                            {col.links.map((l, li) => (
+                              <li key={li}>
+                                <a href={l.url} target="_blank" rel="noopener noreferrer">
+                                  {l.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        {col.note ? <p className="landing-footer-note">{col.note}</p> : null}
+                        {col.ctaLabel && col.ctaUrl ? (
+                          <a className="landing-footer-cta" href={col.ctaUrl} target="_blank" rel="noopener noreferrer">
+                            {col.ctaLabel}
+                          </a>
+                        ) : null}
+                        {col.phone ? (
+                          <a className="landing-footer-contact" href={`tel:${col.phone.replace(/\s/g, "")}`}>
+                            <iconify-icon icon="mdi:phone" width="18" height="18"></iconify-icon>
+                            <span>{col.phone}</span>
+                          </a>
+                        ) : null}
+                        {col.email ? (
+                          <a className="landing-footer-contact" href={`mailto:${col.email}`}>
+                            <iconify-icon icon="mdi:email-outline" width="18" height="18"></iconify-icon>
+                            <span>{col.email}</span>
+                          </a>
+                        ) : null}
+                        {col.whatsappLabel && col.whatsappUrl ? (
+                          <a className="landing-footer-cta landing-footer-wa" href={col.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                            <iconify-icon icon="mdi:whatsapp" width="18" height="18"></iconify-icon>
+                            <span>{col.whatsappLabel}</span>
+                          </a>
+                        ) : null}
+                        {col.social?.length ? (
+                          <div className="landing-footer-social">
+                            {col.social.map((s, si) => (
+                              <a key={si} href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
+                                <iconify-icon icon={s.icon || "mdi:link"} width="22" height="22"></iconify-icon>
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                  {legal ? <p className="landing-social-legal">{legal}</p> : null}
+                </footer>
+              );
+            }
+
             return (
               <footer key={idx} className="landing-block landing-social">
                 <div className="landing-social-inner">
