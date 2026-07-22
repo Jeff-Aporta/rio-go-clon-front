@@ -549,7 +549,7 @@ export function App() {
               onAdd={(p) => addToCart(p)}
             />
           ) : activeDriver === "locations" ? (
-            <LocationsDriver locations={site.locations || []} />
+            <LocationsDriver locations={site.locations || []} hub={site.locationsHub} />
           ) : activeDriver === "catalog-grid" ? (
             <CatalogGridDriver
               products={products}

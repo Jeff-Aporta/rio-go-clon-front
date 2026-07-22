@@ -1,6 +1,6 @@
 import type { BrandIdentity, CarouselSlide, Product, SiteConfig, SiteTab } from "./types";
 
-export type { SiteConfig, SiteTab, SiteLocation, LandingSection, CarouselSlide, SocialLink, FooterSocialProps } from "./types";
+export type { SiteConfig, SiteTab, SiteLocation, LandingSection, CarouselSlide, SocialLink, FooterSocialProps, LocationsHub } from "./types";
 
 export function defaultTabs(): SiteTab[] {
   return [{ id: "menu", label: "Menú", driver: "catalog-rows", icon: "mdi:food" }];
@@ -13,6 +13,7 @@ export function resolveSite(raw: SiteConfig | null | undefined, brand?: BrandIde
     tabs,
     landing: { sections: raw?.landing?.sections || [{ type: "carousel" }] },
     locations: raw?.locations || [],
+    locationsHub: raw?.locationsHub,
     categoryImages: raw?.categoryImages || {},
     defaultTab: raw?.defaultTab || tabs[0]?.id || "menu",
   };

@@ -211,6 +211,17 @@ export type SiteLocation = {
   phone?: string;
   hours?: string;
   mapUrl?: string;
+  region?: string;
+  regionId?: string;
+  regionUrl?: string;
+  whatsappUrl?: string;
+};
+
+export type LocationsHub = {
+  title?: string;
+  intro?: string;
+  sourceUrl?: string;
+  regions?: Array<{ id: string; name: string; blurb?: string; url?: string }>;
 };
 
 export type SiteConfig = {
@@ -218,6 +229,7 @@ export type SiteConfig = {
   tabs?: SiteTab[];
   landing?: { sections?: LandingSection[] };
   locations?: SiteLocation[];
+  locationsHub?: LocationsHub;
   categoryImages?: Record<string, string>;
   defaultTab?: string;
 };

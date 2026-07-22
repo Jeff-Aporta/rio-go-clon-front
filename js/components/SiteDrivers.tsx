@@ -1,4 +1,4 @@
-import type { CarouselSlide, Product } from "../types";
+import type { CarouselSlide, LocationsHub, Product } from "../types";
 import type { SiteConfig, SiteLocation } from "../site";
 import { popularProducts, resolveCarouselSlides } from "../site";
 import { money } from "../money";
@@ -257,7 +257,13 @@ export function LandingDriver({ site, products, categorias, carouselIdx, onGoTab
   );
 }
 
-export function LocationsDriver({ locations }: { locations: SiteLocation[] }) {
+export function LocationsDriver({
+  locations,
+  hub,
+}: {
+  locations: SiteLocation[];
+  hub?: LocationsHub | null;
+}) {
   if (!locations.length) {
     return (
       <div className="empty">
@@ -265,23 +271,105 @@ export function LocationsDriver({ locations }: { locations: SiteLocation[] }) {
       </div>
     );
   }
+
+  const byRegion = new Map<string, SiteLocation[]>();
+  for (const loc of locations) {
+    const key = loc.region || loc.city || "Otros";
+    const list = byRegion.get(key) || [];
+    list.push(loc);
+    byRegion.set(key, list);
+  }
+
+  const regions = hub?.regions?.length
+    ? hub.regions
+    : [...byRegion.keys()].map((name) => ({
+        id: name,
+        name,
+        blurb: `${byRegion.get(name)?.length || 0} puntos`,
+        url: byRegion.get(name)?.[0]?.regionUrl,
+      }));
+
   return (
-    <ul className="locations-list">
-      {locations.map((loc, i) => (
-        <li key={loc.id || i} className="location-card">
-          <strong>{loc.name}</strong>
-          {loc.address ? <span>{loc.address}</span> : null}
-          {loc.city ? <span className="muted">{loc.city}</span> : null}
-          {loc.hours ? <span className="muted">{loc.hours}</span> : null}
-          {loc.phone ? <a href={`tel:${loc.phone.replace(/\s/g, "")}`}>{loc.phone}</a> : null}
-          {loc.mapUrl ? (
-            <a href={loc.mapUrl} target="_blank" rel="noopener noreferrer">
-              Ver mapa
-            </a>
-          ) : null}
-        </li>
-      ))}
-    </ul>
+    <div className="locations-page">
+      <header className="locations-hero">
+        <p className="landing-kicker">Oficiales</p>
+        <h2>{hub?.title || "Puntos de venta oficiales"}</h2>
+        {hub?.intro ? <p className="locations-intro">{hub.intro}</p> : null}
+        {hub?.sourceUrl ? (
+          <a className="locations-source" href={hub.sourceUrl} target="_blank" rel="noopener noreferrer">
+            Ver en donjacobo.com.co
+          </a>
+        ) : null}
+      </header>
+
+      <section className="locations-regions">
+        <h3 className="landing-title">Encuentra tu región</h3>
+        <div className="region-grid">
+          {regions.map((r) => {
+            const count = locations.filter((l) => l.regionId === r.id || l.region === r.name).length;
+            return (
+              <a key={r.id} className="region-card" href={`#region-${r.id}`}>
+                <strong>{r.name}</strong>
+                <span>{r.blurb || `${count} puntos oficiales`}</span>
+                <em>{count ? `${count} locales` : "Ver puntos"}</em>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      {[...byRegion.entries()].map(([regionName, list]) => {
+        const regionId = list[0]?.regionId || regionName;
+        return (
+          <section key={regionName} id={`region-${regionId}`} className="locations-region-block">
+            <div className="locations-region-head">
+              <h3>{regionName}</h3>
+              <span>{list.length} puntos</span>
+            </div>
+            <ul className="locations-list">
+              {list.map((loc, i) => (
+                <li key={loc.id || i} className="location-card">
+                  <strong>{loc.name}</strong>
+                  {loc.city && loc.city !== loc.region ? <span className="location-city">{loc.city}</span> : null}
+                  {loc.address ? (
+                    <span className="location-row">
+                      <iconify-icon icon="mdi:map-marker" width="16" height="16"></iconify-icon>
+                      {loc.address}
+                    </span>
+                  ) : null}
+                  {loc.hours ? (
+                    <span className="location-row muted">
+                      <iconify-icon icon="mdi:clock-outline" width="16" height="16"></iconify-icon>
+                      {loc.hours}
+                    </span>
+                  ) : null}
+                  <div className="location-actions">
+                    {loc.phone ? (
+                      <a href={`tel:${loc.phone.replace(/\s/g, "")}`}>
+                        <iconify-icon icon="mdi:phone" width="16" height="16"></iconify-icon>
+                        Llamar
+                      </a>
+                    ) : null}
+                    {loc.whatsappUrl ? (
+                      <a href={loc.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                        <iconify-icon icon="mdi:whatsapp" width="16" height="16"></iconify-icon>
+                        WhatsApp
+                      </a>
+                    ) : null}
+                    {loc.mapUrl ? (
+                      <a href={loc.mapUrl} target="_blank" rel="noopener noreferrer">
+                        <iconify-icon icon="mdi:map-search" width="16" height="16"></iconify-icon>
+                        Cómo llegar
+                      </a>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
   );
 }
 
