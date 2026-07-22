@@ -46,6 +46,8 @@ export type BrandIdentity = {
 export type BrandResponse = {
   ok: true;
   brand: BrandIdentity;
+  site?: SiteConfig;
+  appId?: string;
   contractVersion: number;
 };
 
@@ -95,6 +97,7 @@ export type Product = {
   negocio: string | null;
   idCategoria: string | null;
   sortOrder?: number;
+  timesOrdered?: number;
 };
 
 export type StoreDisplay = {
@@ -118,12 +121,14 @@ export type CatalogStore = {
   prices: StorePrices;
   categorias: string[];
   carousel: number[];
+  site?: SiteConfig;
   updatedAt?: string;
 };
 
 export type CatalogResponse = {
   ok: true;
   store: CatalogStore;
+  brand?: BrandIdentity;
   products: Product[];
   meta?: {
     total: number;
@@ -133,6 +138,38 @@ export type CatalogResponse = {
     pages: number;
   };
   listFilters?: Record<string, unknown>;
+};
+
+/** Tabs / landing / locales — mismo contrato que STORE.SITE. */
+export type SiteTab = {
+  id: string;
+  label: string;
+  driver: "landing" | "catalog-rows" | "catalog-grid" | "locations" | string;
+  icon?: string;
+};
+
+export type LandingSection = {
+  type: string;
+  props?: Record<string, unknown>;
+};
+
+export type SiteLocation = {
+  id?: string;
+  name: string;
+  address?: string;
+  city?: string;
+  phone?: string;
+  hours?: string;
+  mapUrl?: string;
+};
+
+export type SiteConfig = {
+  brand?: Partial<BrandIdentity>;
+  tabs?: SiteTab[];
+  landing?: { sections?: LandingSection[] };
+  locations?: SiteLocation[];
+  categoryImages?: Record<string, string>;
+  defaultTab?: string;
 };
 
 /** Filtro ISS (QUERY /api/catalog). */
@@ -160,7 +197,7 @@ export type Order = {
 };
 
 export type RouteState =
-  | { tab: "menu" | "carrito" | "pedidos" | "admin"; orderId: null }
+  | { tab: string; orderId: null }
   | { tab: "pedido"; orderId: string };
 
 export type ApiOk<T> = { ok: true } & T;

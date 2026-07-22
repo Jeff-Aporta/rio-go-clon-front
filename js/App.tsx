@@ -18,11 +18,12 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { DevFooter } from "./components/DevFooter";
 import { OrderReadyDialog } from "./components/OrderReadyDialog";
 import { AdminCatalog } from "./components/AdminCatalog";
-import { AdminPanel } from "./components/AdminPanel";
 import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
 import { openOrderWhatsApp } from "./whatsapp";
 import { useSl } from "./hooks/useSl";
 import { money } from "./money";
+import { CatalogGridDriver, LandingDriver, LocationsDriver } from "./components/SiteDrivers";
+import { resolveSite } from "./site";
 import type {
   BrandIdentity,
   CartItem,
@@ -31,6 +32,7 @@ import type {
   Order,
   Product,
   RouteState,
+  SiteConfig,
   ThemeMode,
 } from "./types";
 
@@ -97,6 +99,7 @@ export function App() {
   const [adminView, setAdminView] = useState(isAdminView);
   const [route, setRoute] = useState<RouteState>(readRoute);
   const [brand, setBrand] = useState<BrandIdentity | null>(readCachedBrand);
+  const [site, setSite] = useState<SiteConfig>(() => resolveSite(undefined, readCachedBrand()));
   const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -181,6 +184,7 @@ export function App() {
           if (cancelled) return;
           setBrand(brandRes.brand);
           writeCachedBrand(brandRes.brand);
+          setSite(resolveSite(brandRes.site, brandRes.brand));
           applyBrandTheme(brandRes.brand, theme);
           setError("");
         } else {
@@ -188,8 +192,15 @@ export function App() {
           if (cancelled) return;
           setBrand(brandRes.brand);
           writeCachedBrand(brandRes.brand);
+          const nextSite = resolveSite(catalogRes.store.site || brandRes.site, brandRes.brand);
+          setSite(nextSite);
           setCatalog(catalogRes);
           applyBrandTheme(brandRes.brand, theme);
+          // default tab from site if URL is bare menu
+          if (!new URLSearchParams(location.search).get("s") && nextSite.defaultTab && nextSite.defaultTab !== "menu") {
+            writeRoute(nextSite.defaultTab, null, true);
+            setRoute(readRoute());
+          }
           setError("");
         }
       } catch (e) {
@@ -410,7 +421,13 @@ export function App() {
   const storeName = brand?.name || "Tienda";
   const storeAddress = brand?.address || String(display.direccionDetallada ?? brand?.city ?? "");
   const storeIcon = brand?.icon || "mdi:storefront";
-  const menuActive = route.tab === "menu";
+  const siteTabs = site.tabs?.length ? site.tabs : [{ id: "menu", label: "Menú", driver: "catalog-rows", icon: "mdi:food" }];
+  const activeSiteTab = siteTabs.find((t) => t.id === route.tab);
+  const activeDriver =
+    route.tab === "carrito" || route.tab === "pedido" || route.tab === "pedidos" || route.tab === "admin"
+      ? route.tab
+      : activeSiteTab?.driver || (route.tab === "menu" ? "catalog-rows" : route.tab);
+  const showCatalogToolbar = activeDriver === "catalog-rows" || activeDriver === "catalog-grid";
 
   if (adminView) {
     if (loading && !brand) {
@@ -436,7 +453,7 @@ export function App() {
       <div className="app-top">
       <header className="app-header">
         <div className="header-left">
-          <button type="button" className="brand" onClick={() => go("menu")} aria-label="Ir al menú">
+          <button type="button" className="brand" onClick={() => go(site.defaultTab || siteTabs[0]?.id || "menu")} aria-label="Inicio">
             {logo ? (
               <img src={logo} alt={storeName} />
             ) : (
@@ -449,14 +466,17 @@ export function App() {
           </button>
           <div className="brand-sep" aria-hidden="true" />
           <nav className="header-tabs" aria-label="Secciones">
-            <button
-              type="button"
-              className={`tab-btn ${menuActive ? "active" : ""}`}
-              onClick={() => go("menu")}
-            >
-              <iconify-icon icon="mdi:food" width="18" height="18"></iconify-icon>
-              <span className="label">Menú</span>
-            </button>
+            {siteTabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`tab-btn ${route.tab === t.id ? "active" : ""}`}
+                onClick={() => go(t.id)}
+              >
+                <iconify-icon icon={t.icon || "mdi:circle-small"} width="18" height="18"></iconify-icon>
+                <span className="label">{t.label}</span>
+              </button>
+            ))}
           </nav>
         </div>
 
@@ -481,7 +501,7 @@ export function App() {
         </div>
       </header>
 
-      {route.tab === "menu" && !loading && !error ? (
+      {showCatalogToolbar && !loading && !error ? (
         <div className="toolbar">
           <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable size="small">
             <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
@@ -509,9 +529,30 @@ export function App() {
               <p>{error}</p>
               <p style={{ fontSize: "0.85rem" }}>API: <code>{apiBase()}</code> · app: <code>{appId()}</code></p>
             </div>
-          ) : route.tab === "menu" ? (
+          ) : activeDriver === "landing" ? (
+            <LandingDriver
+              site={site}
+              products={products}
+              categorias={categorias}
+              heroItems={heroItems}
+              onGoTab={(t) => go(t)}
+              onOpenProduct={setDetail}
+              onAdd={(p) => addToCart(p)}
+            />
+          ) : activeDriver === "locations" ? (
+            <LocationsDriver locations={site.locations || []} />
+          ) : activeDriver === "catalog-grid" ? (
+            <CatalogGridDriver
+              products={products}
+              q={q}
+              catFilter={catFilter}
+              onOpen={setDetail}
+              onAdd={(p) => addToCart(p)}
+              qtyByCode={qtyByCode}
+            />
+          ) : activeDriver === "catalog-rows" || route.tab === "menu" ? (
             <>
-              {heroItems.length ? (
+              {heroItems.length && !(site.landing?.sections?.some((s) => s.type === "carousel")) ? (
                 <section className="hero">
                   <sl-carousel
                     loop
@@ -594,13 +635,9 @@ export function App() {
               }}
             />
           ) : (
-            <AdminPanel
-              adminToken={adminToken}
-              setAdminToken={setAdminToken}
-              loadAdmin={() => void loadAdmin()}
-              adminOrders={adminOrders}
-              patchStatus={(id, status) => void patchStatus(id, status)}
-            />
+            <div className="empty">
+              <p>Sección no disponible</p>
+            </div>
           )}
           </div>
           {!isEmbedMode() ? <DevFooter /> : null}

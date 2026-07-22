@@ -2,20 +2,24 @@ import { applyShellParamsToUrl } from "./config";
 import type { RouteState } from "./types";
 
 /** Tabs cortos en ?s= (b64url JSON). */
-const TAB_SHORT = {
+const TAB_SHORT: Record<string, string> = {
   menu: "m",
   carrito: "c",
   pedido: "o",
   pedidos: "p",
   admin: "a",
-} as const;
+  inicio: "i",
+  locales: "l",
+};
 
-const SHORT_TAB: Record<string, RouteState["tab"]> = {
+const SHORT_TAB: Record<string, string> = {
   m: "menu",
   c: "carrito",
   o: "pedido",
   p: "pedidos",
   a: "admin",
+  i: "inicio",
+  l: "locales",
 };
 
 type NavWire = { t: string; i?: string };
@@ -37,10 +41,10 @@ function b64urlDecode(s: string): string {
 }
 
 export function encodeNav(tab: string, orderId?: string | null): string {
-  const t = TAB_SHORT[tab as keyof typeof TAB_SHORT] ?? "m";
+  const t = TAB_SHORT[tab] ?? (tab.slice(0, 1) || "m");
   const wire: NavWire = { t };
   if (orderId) wire.i = String(orderId);
-  if (t === "m" && !orderId) return "";
+  if ((t === "m" || tab === "menu") && !orderId) return "";
   return b64urlEncode(JSON.stringify(wire));
 }
 
@@ -48,10 +52,14 @@ export function decodeNav(s: string | null): RouteState {
   if (!s) return { tab: "menu", orderId: null };
   try {
     const wire = JSON.parse(b64urlDecode(s)) as NavWire;
-    const tab = SHORT_TAB[wire.t] ?? "menu";
+    const tab = SHORT_TAB[wire.t] || wire.t || "menu";
     if (tab === "pedido" && wire.i) return { tab: "pedido", orderId: String(wire.i) };
     if (tab === "pedido") return { tab: "menu", orderId: null };
-    return { tab, orderId: null };
+    if (tab === "carrito" || tab === "pedidos" || tab === "admin") {
+      return { tab, orderId: null };
+    }
+    // inicio | locales | menu | custom site tabs
+    return { tab: tab as RouteState["tab"], orderId: null };
   } catch {
     return { tab: "menu", orderId: null };
   }
@@ -76,7 +84,6 @@ export function writeAdminView(on: boolean, replace = false): void {
   else history.pushState(null, "", next);
 }
 
-/** Escribe ?s=… (sin hash). Menú limpia el param. Preserva v=adm, conn y embed. */
 export function writeRoute(tab: string, orderId?: string | null, replace = false): void {
   const s = encodeNav(tab, orderId);
   const url = new URL(location.href);
@@ -89,14 +96,12 @@ export function writeRoute(tab: string, orderId?: string | null, replace = false
   else history.pushState(null, "", next);
 }
 
-/** URL absoluta de vista de pedido (para WhatsApp / compartir). Incluye conn si hay. */
 export function orderViewUrl(orderId: string, base = location.href): string {
   const url = new URL(base);
   url.hash = "";
   url.search = "";
   url.searchParams.set("s", encodeNav("pedido", orderId));
   applyShellParamsToUrl(url);
-  // WhatsApp / compartir: sin embed (página completa)
   url.searchParams.delete("embed");
   return url.toString();
 }
