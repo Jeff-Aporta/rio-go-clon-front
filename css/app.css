@@ -51,13 +51,32 @@ html, body {
 
 .boot {
   height: 100%;
-  display: grid;
-  place-content: center;
-  gap: 12px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0;
+  padding: 24px;
   text-align: center;
   color: var(--rg-muted);
+  background: var(--rg-bg);
 }
-.boot iconify-icon { color: var(--rg-accent); }
+.boot iconify-icon {
+  display: block;
+  color: var(--rg-accent);
+  line-height: 0;
+  flex-shrink: 0;
+}
+.boot p {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
 
 .app-shell {
   height: 100dvh;
