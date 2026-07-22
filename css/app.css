@@ -62,11 +62,18 @@ html, body {
 .app-shell {
   height: 100dvh;
   display: grid;
-  grid-template-rows: var(--rg-header-h) 1fr;
+  grid-template-rows: auto 1fr;
   background:
     radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--rg-accent) 14%, transparent), transparent 55%),
     radial-gradient(900px 400px at 90% 0%, color-mix(in srgb, var(--rg-accent-2) 10%, transparent), transparent 50%),
     var(--rg-bg);
+}
+
+.app-top {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 20;
 }
 
 .app-header {
@@ -74,11 +81,11 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  height: var(--rg-header-h);
   padding: 0 16px;
   border-bottom: 1px solid var(--rg-line);
   background: var(--rg-header-bg);
   backdrop-filter: blur(14px);
-  z-index: 20;
 }
 
 .header-left {
@@ -350,18 +357,25 @@ html.sl-theme-light .hero-price {
 .toolbar {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
-  margin-bottom: 18px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  padding: 8px 0;
-  background: linear-gradient(var(--rg-bg) 60%, transparent);
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 16px;
+  min-height: 40px;
+  border-bottom: 1px solid var(--rg-line);
+  background: var(--rg-header-bg);
+  backdrop-filter: blur(14px);
+  z-index: 19;
+}
+.toolbar sl-input,
+.toolbar sl-select {
+  --sl-input-height-small: 32px;
+  --sl-input-font-size-small: 0.85rem;
 }
 
 .cat-section {
   margin-bottom: 28px;
-  scroll-margin-top: 72px;
+  scroll-margin-top: 12px;
 }
 .cat-head {
   display: flex;
@@ -698,7 +712,7 @@ html.sl-theme-light .hero-price {
   }
   .hero-caption h2 { font-size: 1.05rem; }
   .hero-caption p { font-size: 0.82rem; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-  .toolbar { grid-template-columns: 1fr; }
+  .toolbar { grid-template-columns: 1fr; padding: 4px 12px; gap: 6px; }
   .product-card { flex-basis: 156px; }
   .cart-item { grid-template-columns: 56px 1fr; }
   .cart-item > .money:last-child { grid-column: 2; justify-self: start; }

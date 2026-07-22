@@ -403,6 +403,7 @@ export function App() {
 
   return (
     <div className="app-shell">
+      <div className="app-top">
       <header className="app-header">
         <div className="header-left">
           <button type="button" className="brand" onClick={() => go("menu")} aria-label="Ir al menú">
@@ -444,6 +445,20 @@ export function App() {
           <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
         </div>
       </header>
+
+      {route.tab === "menu" && !loading && !error ? (
+        <div className="toolbar">
+          <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable size="small">
+            <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
+          </sl-input>
+          <sl-select ref={catBind} placeholder="Categoría" clearable size="small" style={{ minWidth: 180 }}>
+            {categorias.map((c) => (
+              <sl-option key={c} value={catSlug(c)}>{c}</sl-option>
+            ))}
+          </sl-select>
+        </div>
+      ) : null}
+      </div>
 
       <main className="panel">
         <div className="panel-scroll">
@@ -490,17 +505,6 @@ export function App() {
                   </sl-carousel>
                 </section>
               ) : null}
-
-              <div className="toolbar">
-                <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable>
-                  <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
-                </sl-input>
-                <sl-select ref={catBind} placeholder="Categoría" clearable style={{ minWidth: 220 }}>
-                  {categorias.map((c) => (
-                    <sl-option key={c} value={catSlug(c)}>{c}</sl-option>
-                  ))}
-                </sl-select>
-              </div>
 
               {filteredCats.length === 0 ? (
                 <div className="empty">
