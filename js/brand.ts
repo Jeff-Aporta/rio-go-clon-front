@@ -1,3 +1,4 @@
+import { storageKey } from "./config";
 import type { BrandIdentity, ThemeMode, ThemePalette } from "./types";
 
 const PALETTE_TO_CSS: Record<keyof ThemePalette, string> = {
@@ -92,6 +93,45 @@ export function applyModeClasses(mode: ThemeMode): void {
   document.documentElement.style.colorScheme = mode;
 }
 
+function isBrandIdentity(v: unknown): v is BrandIdentity {
+  if (!v || typeof v !== "object") return false;
+  const o = v as Record<string, unknown>;
+  return typeof o.name === "string" && typeof o.id === "string";
+}
+
+/** Última identidad de marca vista (evita FOUC mientras llega /api/brand). */
+export function readCachedBrand(): BrandIdentity | null {
+  try {
+    const raw =
+      localStorage.getItem(storageKey("brand")) ||
+      localStorage.getItem("storefront:brand") ||
+      localStorage.getItem("riogo:brand");
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    return isBrandIdentity(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedBrand(brand: BrandIdentity): void {
+  try {
+    localStorage.setItem(storageKey("brand"), JSON.stringify(brand));
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+export function readStoredThemeMode(): ThemeMode {
+  try {
+    const v = localStorage.getItem(storageKey("theme")) || localStorage.getItem("riogo:theme");
+    if (v === "light" || v === "dark") return v;
+  } catch {
+    /* ignore */
+  }
+  return "dark";
+}
+
 /** Aplica marca si trae themes; si no, usa estilos base de la app. */
 export function applyBrandTheme(brand: BrandIdentity | null | undefined, mode: ThemeMode): void {
   const hasApiThemes = isPalette(brand?.themes?.dark) || isPalette(brand?.themes?.light);
@@ -111,4 +151,11 @@ export function applyBrandTheme(brand: BrandIdentity | null | undefined, mode: T
   }
 
   if (brand?.name) document.title = `${brand.name} — Pedidos`;
+}
+
+/** Primera pintura: cache LS → CSS vars (antes de React / fetch). */
+export function hydrateBrandFromCache(mode: ThemeMode = readStoredThemeMode()): BrandIdentity | null {
+  const brand = readCachedBrand();
+  applyBrandTheme(brand, mode);
+  return brand;
 }

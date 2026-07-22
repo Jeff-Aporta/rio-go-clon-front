@@ -1,3 +1,4 @@
+import { applyShellParamsToUrl } from "./config";
 import type { RouteState } from "./types";
 
 /** Tabs cortos en ?s= (b64url JSON). */
@@ -69,28 +70,33 @@ export function writeAdminView(on: boolean, replace = false): void {
   url.hash = "";
   if (on) url.searchParams.set("v", "adm");
   else url.searchParams.delete("v");
+  applyShellParamsToUrl(url);
   const next = `${url.pathname}${url.search}`;
   if (replace) history.replaceState(null, "", next);
   else history.pushState(null, "", next);
 }
 
-/** Escribe ?s=… (sin hash). Menú limpia el param. Preserva v=adm si existe. */
+/** Escribe ?s=… (sin hash). Menú limpia el param. Preserva v=adm, conn y embed. */
 export function writeRoute(tab: string, orderId?: string | null, replace = false): void {
   const s = encodeNav(tab, orderId);
   const url = new URL(location.href);
   url.hash = "";
   if (s) url.searchParams.set("s", s);
   else url.searchParams.delete("s");
+  applyShellParamsToUrl(url);
   const next = `${url.pathname}${url.search}`;
   if (replace) history.replaceState(null, "", next);
   else history.pushState(null, "", next);
 }
 
-/** URL absoluta de vista de pedido (para WhatsApp / compartir). */
+/** URL absoluta de vista de pedido (para WhatsApp / compartir). Incluye conn si hay. */
 export function orderViewUrl(orderId: string, base = location.href): string {
   const url = new URL(base);
   url.hash = "";
   url.search = "";
   url.searchParams.set("s", encodeNav("pedido", orderId));
+  applyShellParamsToUrl(url);
+  // WhatsApp / compartir: sin embed (página completa)
+  url.searchParams.delete("embed");
   return url.toString();
 }

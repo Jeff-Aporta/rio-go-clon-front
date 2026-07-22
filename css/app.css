@@ -1045,3 +1045,98 @@ html.sl-theme-light .hero-price {
   min-height: 140px;
   border-style: dashed;
 }
+
+html.embed .dev-footer { display: none; }
+
+/* —— Hub / directorio de apps (sin ?conn=) —— */
+.hub-shell {
+  grid-template-rows: auto 1fr auto;
+}
+.hub-header .hub-sub {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--rg-muted);
+  font-weight: 500;
+}
+.hub-main {
+  overflow: auto;
+  padding: 20px 16px 32px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+.hub-boot {
+  min-height: 40dvh;
+  background: transparent;
+}
+.hub-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.hub-card {
+  --hub-accent: var(--rg-accent);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--rg-line);
+  border-radius: var(--rg-radius);
+  background: var(--rg-surface);
+  color: var(--rg-text);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+.hub-card:hover {
+  border-color: color-mix(in srgb, var(--hub-accent) 55%, var(--rg-line));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--hub-accent) 12%, transparent);
+  transform: translateY(-1px);
+}
+.hub-card:active { transform: translateY(0); }
+.hub-card-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--hub-accent) 16%, var(--rg-surface-2));
+  color: var(--hub-accent);
+}
+.hub-card-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.hub-card-body strong {
+  font-family: Syne, "DM Sans", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.hub-muted { color: var(--rg-muted); font-size: 0.85rem; }
+.hub-city { font-size: 0.8rem; color: var(--rg-muted); }
+.hub-id {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--hub-accent) 80%, var(--rg-muted));
+  margin-top: 2px;
+}
+.hub-chevron { flex-shrink: 0; color: var(--rg-muted); opacity: 0.7; }
+.hub-error {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--rg-danger);
+}
+.hub-empty { text-align: center; padding: 40px 8px; }
+

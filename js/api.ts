@@ -1,6 +1,8 @@
-import { apiBase, loadConfig } from "./config";
+import { apiBase, appId, loadConfig } from "./config";
 import type {
   ApiErr,
+  AppDirectoryItem,
+  AppsDirectoryResponse,
   BrandResponse,
   CartItem,
   CatalogResponse,
@@ -17,11 +19,12 @@ async function parseJson(res: Response): Promise<unknown> {
   }
 }
 
-export async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
+async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
   await loadConfig();
   const headers = new Headers(opts.headers);
   if (!headers.has("Accept")) headers.set("Accept", "application/json");
   if (opts.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (!headers.has("X-App-Id")) headers.set("X-App-Id", appId());
 
   const res = await fetch(`${apiBase()}${path}`, { ...opts, headers });
   const data = (await parseJson(res)) as Partial<ApiErr> & Record<string, unknown>;
@@ -37,6 +40,20 @@ function bearer(token: string): HeadersInit {
 
 export function fetchBrand(): Promise<BrandResponse> {
   return api<BrandResponse>("/api/brand");
+}
+
+/** Listado de apps del worker (hub sin ?conn=). */
+export async function fetchAppsDirectory(): Promise<AppsDirectoryResponse> {
+  try {
+    return await api<AppsDirectoryResponse>("/api/apps");
+  } catch {
+    // worker viejo: / puede traer apps como ids o como directorio
+    const root = await api<{ ok?: boolean; apps?: Array<AppDirectoryItem | string>; contractVersion?: number }>("/");
+    const apps = (root.apps || []).map((a) =>
+      typeof a === "string" ? { id: a, name: a } : a,
+    );
+    return { ok: true, apps, contractVersion: root.contractVersion ?? 1 };
+  }
 }
 
 /** Catálogo vía QUERY + filtro ISS (vacío = todo el catálogo paginado al default). */
@@ -119,7 +136,7 @@ export async function uploadAdminProductImage(
   if (opts?.descripcion) fd.append("descripcion", opts.descripcion);
   const res = await fetch(`${apiBase()}/api/admin/products/${encodeURIComponent(codigo)}/images`, {
     method: "POST",
-    headers: { ...bearer(token), Accept: "application/json" },
+    headers: { ...bearer(token), Accept: "application/json", "X-App-Id": appId() },
     body: fd,
   });
   const data = (await parseJson(res)) as { ok?: boolean; error?: string; image?: unknown; product?: unknown };

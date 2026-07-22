@@ -1,59 +1,86 @@
 <p align="center">
-  <img src="https://api.iconify.design/mdi/hamburger.svg?color=%23f5a623&width=96&height=96" width="96" height="96" alt="RIO GO 24" />
+  <img src="https://api.iconify.design/mdi/storefront-outline.svg?color=%23f5a623&width=96&height=96" width="96" height="96" alt="Storefront genesis" />
 </p>
 
 <h1 align="center">rio-go-clon-front</h1>
 
-<p align="center"><strong>RIO GO 24</strong> — carta digital, carrito y pedidos online (clon storefront).</p>
+<p align="center"><strong>Genesis storefront</strong> — una sola app web; el resto de tiendas la embebe por <code>iframe</code> + <code>?conn=</code>.</p>
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-2ea44f?logo=githubpages&logoColor=white)](https://jeff-aporta.github.io/rio-go-clon-front/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
+## Idea
+
+| Pieza | Rol |
+|-------|-----|
+| **Este front (genesis)** | UI única publicada en GitHub Pages |
+| **Worker** | Todas las apps; `X-App-Id` / `appId` elige schema Neon + brand |
+| **Otras apps / sites** | Solo un `<iframe src="…?conn=…&embed=1">` — sin fork del front |
+
+Hoy solo existe **`riogo`**. Nuevas tiendas = entrada en `api/src/apps.ts` + schema BD; el iframe apunta al mismo genesis con otro `appId`.
+
 ## Demo
 
-**https://jeff-aporta.github.io/rio-go-clon-front/**
+**https://jeff-aporta.github.io/rio-go-clon-front/** — sin `conn` → directorio de apps  
+Con `conn` → tienda.
 
-API: [rio-go-clon.jeffaporta.workers.dev](https://rio-go-clon.jeffaporta.workers.dev) · backend: [`rio-go-clon-back`](https://github.com/Jeff-Aporta/rio-go-clon-back) (privado)
+API: [rio-go-clon.jeffaporta.workers.dev](https://rio-go-clon.jeffaporta.workers.dev) · back: [`rio-go-clon-back`](https://github.com/Jeff-Aporta/rio-go-clon-back) (privado)
 
-## Qué hace
+## Embed (otras apps)
 
-- Catálogo con categorías, búsqueda y cards
-- Carrito + checkout domicilio + pedido por WhatsApp
-- Seguimiento de pedido (`?s=` nav state)
-- Panel admin (`?v=adm`) — productos e imágenes
-- Tema claro/oscuro + marca desde `/api/brand`
-- UI **Shoelace** + **Iconify**
+```html
+<iframe
+  title="Pedidos"
+  src="https://jeff-aporta.github.io/rio-go-clon-front/?conn=CONN_B64URL&embed=1"
+  style="width:100%;height:100dvh;border:0"
+  allow="clipboard-write"
+></iframe>
+```
 
-## Config
-
-`config.json`:
+`conn` = base64url de:
 
 ```json
 {
   "apiBase": "https://rio-go-clon.jeffaporta.workers.dev",
-  "storagePrefix": "storefront"
+  "appId": "riogo"
 }
 ```
 
-Override en runtime:
+Ejemplo (riogo):
 
-```js
-localStorage.setItem("storefront:api", "http://127.0.0.1:8805");
+```text
+https://jeff-aporta.github.io/rio-go-clon-front/?conn=eyJhcGlCYXNlIjoiaHR0cHM6Ly9yaW8tZ28tY2xvbi5qZWZmYXBvcnRhLndvcmtlcnMuZGV2IiwiYXBwSWQiOiJyaW9nbyIsInN0b3JhZ2VQcmVmaXgiOiJyaW9nbyJ9&embed=1
 ```
 
-El catálogo se pide con **`QUERY /api/catalog`** (filtro ISS).
+`embed=1` oculta el hub y el pie del genesis (chrome del host).
+
+## Config genesis
+
+`config.json` — solo el worker por defecto:
+
+```json
+{
+  "apiBase": "https://rio-go-clon.jeffaporta.workers.dev"
+}
+```
+
+## Qué incluye el genesis
+
+- Catálogo, carrito, WhatsApp, seguimiento (`?s=`)
+- Admin (`?v=adm`)
+- Tema + marca desde `/api/brand` (por `appId`)
+- Hub sin `?conn=` → `GET /api/apps`
 
 ## Desarrollo
 
 ```bash
 npm ci
 npm run build:check
-npx serve .   # o Live Server en la raíz del front
 ```
 
-Push a `main` → workflow **GitHub Pages** construye `_dist` y publica.
+Push a `main` → GitHub Pages publica `_dist`.
 
 ## Stack
 
-React 18 · TypeScript · esbuild · Shoelace · GitHub Pages
+React 18 · TypeScript · esbuild · Shoelace · Iconify · GitHub Pages

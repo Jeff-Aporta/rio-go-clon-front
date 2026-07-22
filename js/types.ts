@@ -166,9 +166,27 @@ export type RouteState =
 export type ApiOk<T> = { ok: true } & T;
 export type ApiErr = { ok: false; error: string };
 
-/** config.json del front — solo cambia apiBase para apuntar a otro server. */
+/** Item del directorio GET /api/apps. */
+export type AppDirectoryItem = {
+  id: string;
+  name: string;
+  tagline?: string;
+  city?: string;
+  icon?: string;
+  accent?: string;
+};
+
+export type AppsDirectoryResponse = {
+  ok: true;
+  apps: AppDirectoryItem[];
+  contractVersion: number;
+};
+
+/** config.json + opcional ?conn= (b64url { apiBase, appId, storagePrefix? }). */
 export type FrontConfig = {
   apiBase: string;
+  /** Tenant en el worker (X-App-Id). Default riogo. */
+  appId?: string;
   storagePrefix?: string;
   comment?: string;
 };

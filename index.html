@@ -37,14 +37,78 @@
   <link rel="stylesheet" href="_dist/css/app.css" />
   <script>
     (function () {
-      var k = "storefront:theme";
+      function b64urlDecode(s) {
+        var pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
+        var b64 = s.replace(/-/g, "+").replace(/_/g, "/") + pad;
+        try { return decodeURIComponent(escape(atob(b64))); } catch (e) {
+          try { return atob(b64); } catch (e2) { return ""; }
+        }
+      }
+      function readConn() {
+        try {
+          var c = new URLSearchParams(location.search).get("conn");
+          if (c) {
+            var j = JSON.parse(b64urlDecode(c));
+            if (j && (j.apiBase || j.a)) return j;
+          }
+        } catch (e) {}
+        try {
+          var raw = localStorage.getItem("storefront:conn") || localStorage.getItem("riogo:conn");
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return null;
+      }
+      var conn = readConn();
+      var prefix = (conn && (conn.storagePrefix || conn.p || conn.appId || conn.i)) || "riogo";
+
       var m = "dark";
       try {
-        var v = localStorage.getItem(k) || localStorage.getItem("riogo:theme");
+        var v =
+          localStorage.getItem(prefix + ":theme") ||
+          localStorage.getItem("storefront:theme") ||
+          localStorage.getItem("riogo:theme");
         if (v === "light" || v === "dark") m = v;
       } catch (e) {}
       document.documentElement.classList.add(m === "dark" ? "sl-theme-dark" : "sl-theme-light");
       document.documentElement.style.colorScheme = m;
+
+      try {
+        var raw =
+          localStorage.getItem(prefix + ":brand") ||
+          localStorage.getItem("storefront:brand") ||
+          localStorage.getItem("riogo:brand");
+        if (!raw) return;
+        var brand = JSON.parse(raw);
+        var themes = brand && brand.themes;
+        var pal = themes && (themes[m] || themes.dark || themes.light);
+        if (!pal || typeof pal.bg !== "string") return;
+        var map = {
+          bg: "--rg-bg",
+          surface: "--rg-surface",
+          surface2: "--rg-surface-2",
+          line: "--rg-line",
+          text: "--rg-text",
+          muted: "--rg-muted",
+          accent: "--rg-accent",
+          accent2: "--rg-accent-2",
+          ok: "--rg-ok",
+          danger: "--rg-danger",
+          headerBg: "--rg-header-bg",
+          priceBar: "--rg-price-bar",
+          heroCaption: "--rg-hero-caption",
+        };
+        var root = document.documentElement;
+        for (var k in map) {
+          if (typeof pal[k] === "string" && pal[k]) root.style.setProperty(map[k], pal[k]);
+        }
+        if (pal.accent) {
+          root.style.setProperty("--sl-color-primary-600", pal.accent);
+          root.style.setProperty("--sl-color-primary-500", pal.accent);
+        }
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", pal.bg);
+        if (brand.name) document.title = brand.name + " — Pedidos";
+      } catch (e) {}
     })();
   </script>
   <script type="importmap">

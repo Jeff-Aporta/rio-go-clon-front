@@ -1,5 +1,4 @@
 {
   "apiBase": "https://rio-go-clon.jeffaporta.workers.dev",
-  "storagePrefix": "storefront",
-  "comment": "Cambia apiBase al worker de otra tienda (mismos endpoints). Opcional: localStorage.setItem('<prefix>:api', url) para override."
+  "comment": "Genesis: sin ?conn= → hub. Otras apps embeben ?conn=b64{apiBase,appId}&embed=1"
 }

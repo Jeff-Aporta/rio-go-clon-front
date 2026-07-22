@@ -8,8 +8,8 @@ import {
   fetchOrderWhatsApp,
   patchOrderStatus,
 } from "./api";
-import { apiBase, loadConfig, storageKey } from "./config";
-import { applyBrandTheme } from "./brand";
+import { apiBase, appId, isEmbedMode, loadConfig, openAppsHub, storageKey } from "./config";
+import { applyBrandTheme, readCachedBrand, writeCachedBrand } from "./brand";
 import { ProductCard } from "./components/ProductCard";
 import { CartPanel } from "./components/CartPanel";
 import { OrderPanel } from "./components/OrderPanel";
@@ -36,7 +36,10 @@ import type {
 
 function loadCart(): CartItem[] {
   try {
-    const raw = localStorage.getItem(storageKey("cart")) || localStorage.getItem("riogo:cart");
+    const raw =
+      localStorage.getItem(storageKey("cart")) ||
+      localStorage.getItem("storefront:cart") ||
+      localStorage.getItem("riogo:cart");
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
@@ -47,7 +50,10 @@ function loadCart(): CartItem[] {
 
 function readTheme(): ThemeMode {
   try {
-    const v = localStorage.getItem(storageKey("theme")) || localStorage.getItem("riogo:theme");
+    const v =
+      localStorage.getItem(storageKey("theme")) ||
+      localStorage.getItem("storefront:theme") ||
+      localStorage.getItem("riogo:theme");
     if (v === "light" || v === "dark") return v;
   } catch {
     /* ignore */
@@ -90,7 +96,7 @@ function catSlug(name: string): string {
 export function App() {
   const [adminView, setAdminView] = useState(isAdminView);
   const [route, setRoute] = useState<RouteState>(readRoute);
-  const [brand, setBrand] = useState<BrandIdentity | null>(null);
+  const [brand, setBrand] = useState<BrandIdentity | null>(readCachedBrand);
   const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -174,12 +180,14 @@ export function App() {
           const brandRes = await fetchBrand();
           if (cancelled) return;
           setBrand(brandRes.brand);
+          writeCachedBrand(brandRes.brand);
           applyBrandTheme(brandRes.brand, theme);
           setError("");
         } else {
           const [brandRes, catalogRes] = await Promise.all([fetchBrand(), fetchCatalog()]);
           if (cancelled) return;
           setBrand(brandRes.brand);
+          writeCachedBrand(brandRes.brand);
           setCatalog(catalogRes);
           applyBrandTheme(brandRes.brand, theme);
           setError("");
@@ -464,6 +472,11 @@ export function App() {
             <span className="label">Carrito</span>
             {cartCount > 0 ? <span className="badge">{cartCount}</span> : null}
           </button>
+          {!isEmbedMode() ? (
+            <button type="button" className="theme-toggle" aria-label="Todas las tiendas" title="Todas las tiendas" onClick={openAppsHub}>
+              <iconify-icon icon="mdi:view-grid-outline" width="20" height="20"></iconify-icon>
+            </button>
+          ) : null}
           <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
         </div>
       </header>
@@ -494,7 +507,7 @@ export function App() {
             <div className="empty">
               <iconify-icon icon="mdi:cloud-alert"></iconify-icon>
               <p>{error}</p>
-              <p style={{ fontSize: "0.85rem" }}>API: <code>{apiBase()}</code></p>
+              <p style={{ fontSize: "0.85rem" }}>API: <code>{apiBase()}</code> · app: <code>{appId()}</code></p>
             </div>
           ) : route.tab === "menu" ? (
             <>
@@ -590,7 +603,7 @@ export function App() {
             />
           )}
           </div>
-          <DevFooter />
+          {!isEmbedMode() ? <DevFooter /> : null}
         </div>
       </main>
 
