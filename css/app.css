@@ -561,7 +561,7 @@ html.sl-theme-light .hero-price {
   cursor: pointer;
 }
 
-.cart-page { width: 100%; max-width: 1200px; margin: 0 auto; }
+.cart-page { width: 100%; max-width: 1200px; margin: 0 auto; min-width: 0; }
 .cart-title {
   font-family: Syne, sans-serif;
   margin: 0 0 14px;
@@ -570,20 +570,23 @@ html.sl-theme-light .hero-price {
   display: grid;
   gap: 16px;
   align-items: start;
+  min-width: 0;
 }
 .cart-list {
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 .cart-item {
   display: grid;
-  grid-template-columns: 64px 1fr auto;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 10px;
   border-radius: 14px;
   background: var(--rg-surface);
   border: 1px solid var(--rg-line);
+  min-width: 0;
 }
 .cart-item img {
   width: 64px;
@@ -601,6 +604,10 @@ html.sl-theme-light .hero-price {
   border: 1px solid var(--rg-line);
   display: grid;
   gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .checkout-title {
   margin: 0;
@@ -616,6 +623,7 @@ html.sl-theme-light .hero-price {
   align-items: center;
   gap: 8px;
   width: fit-content;
+  max-width: 100%;
   padding: 8px 12px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--rg-accent) 16%, transparent);
@@ -627,9 +635,22 @@ html.sl-theme-light .hero-price {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+.checkout-grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.checkout-grid sl-input,
+.checkout-grid sl-textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .checkout-span { grid-column: 1 / -1; }
-.checkout-submit { width: 100%; }
+.checkout-submit { width: 100%; max-width: 100%; }
 .totals {
   display: grid;
   gap: 6px;
@@ -705,20 +726,19 @@ html.sl-theme-light .hero-price {
 
 /* —— Responsive —— */
 @media (min-width: 640px) {
-  .checkout-grid { grid-template-columns: 1fr 1fr; }
+  .checkout-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .panel-scroll { padding: 18px 20px 110px; }
   .product-card { flex-basis: 200px; }
 }
 
 @media (min-width: 900px) {
   .cart-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
   }
   .checkout-box { position: sticky; top: 8px; }
 }
 
 @media (min-width: 1024px) {
-  .checkout-grid { grid-template-columns: 1fr 1fr 1fr; }
   .hero-caption { max-width: 520px; }
   .product-card { flex-basis: 220px; }
 }
