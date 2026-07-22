@@ -561,14 +561,19 @@ html.sl-theme-light .hero-price {
   cursor: pointer;
 }
 
-.cart-page { width: 100%; max-width: 1200px; margin: 0 auto; min-width: 0; }
+.cart-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-width: 0;
+}
 .cart-title {
   font-family: Syne, sans-serif;
   margin: 0 0 14px;
 }
 .cart-layout {
   display: grid;
-  gap: 16px;
+  gap: 20px;
   align-items: start;
   min-width: 0;
 }
@@ -759,9 +764,17 @@ html.sl-theme-light .hero-price {
 
 @media (min-width: 900px) {
   .cart-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px;
   }
   .checkout-box { position: sticky; top: 8px; }
+}
+
+@media (min-width: 1200px) {
+  .cart-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(420px, 1fr);
+    gap: 28px;
+  }
 }
 
 @media (min-width: 1024px) {
