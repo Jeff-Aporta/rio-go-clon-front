@@ -19,6 +19,36 @@ function asStr(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
+function slideHasOverlay(slide: CarouselSlide): boolean {
+  return !!(slide.overlayImageUrl || slide.title || slide.eyebrow || slide.subtitle || slide.ctaLabel);
+}
+
+function SlideContent({ slide }: { slide: CarouselSlide }) {
+  const align = slide.align || "left";
+  const valign = slide.valign || "center";
+  const hasOverlay = slideHasOverlay(slide);
+  return (
+    <>
+      <img className="hero-slide-bg" src={slide.imageUrl} alt={slide.alt || ""} />
+      {hasOverlay ? (
+        <div className={`hero-slide-overlay align-${align} valign-${valign}`}>
+          <div className="hero-slide-copy">
+            {slide.overlayImageUrl ? (
+              <img className="hero-slide-graphic" src={slide.overlayImageUrl} alt="" />
+            ) : null}
+            {slide.eyebrow ? <p className="hero-slide-eyebrow">{slide.eyebrow}</p> : null}
+            {slide.title ? <h2 className="hero-slide-title">{slide.title}</h2> : null}
+            {slide.subtitle ? <p className="hero-slide-sub">{slide.subtitle}</p> : null}
+            {slide.ctaLabel ? <span className="hero-slide-cta">{slide.ctaLabel}</span> : null}
+          </div>
+        </div>
+      ) : slide.codigoAb && slide.alt ? (
+        <span className="hero-cap">{slide.alt}</span>
+      ) : null}
+    </>
+  );
+}
+
 function onSlideClick(
   slide: CarouselSlide,
   products: Product[],
@@ -69,20 +99,20 @@ export function LandingDriver({
                 <sl-carousel navigation pagination autoplay className="hero-carousel">
                   {slides.map((slide) => {
                     const clickable = !!(slide.hrefUrl || slide.hrefTab || slide.codigoAb);
+                    const kind = slide.codigoAb ? "hero-slide--product" : "hero-slide--banner";
                     return (
                       <sl-carousel-item key={slide.id || slide.imageUrl}>
                         {clickable ? (
                           <button
                             type="button"
-                            className={`hero-slide${slide.codigoAb ? " hero-slide--product" : " hero-slide--banner"}`}
+                            className={`hero-slide ${kind}`}
                             onClick={() => onSlideClick(slide, products, onGoTab, onOpenProduct)}
                           >
-                            <img src={slide.imageUrl} alt={slide.alt || ""} />
-                            {slide.codigoAb && slide.alt ? <span className="hero-cap">{slide.alt}</span> : null}
+                            <SlideContent slide={slide} />
                           </button>
                         ) : (
-                          <div className="hero-slide hero-slide--banner">
-                            <img src={slide.imageUrl} alt={slide.alt || ""} />
+                          <div className={`hero-slide ${kind}`}>
+                            <SlideContent slide={slide} />
                           </div>
                         )}
                       </sl-carousel-item>

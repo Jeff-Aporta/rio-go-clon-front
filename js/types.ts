@@ -153,6 +153,13 @@ export type CarouselSlide = {
   id?: string;
   imageUrl: string;
   alt?: string;
+  overlayImageUrl?: string;
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  align?: "left" | "center" | "right";
+  valign?: "top" | "center" | "bottom";
   codigoAb?: string;
   hrefTab?: string;
   hrefUrl?: string;

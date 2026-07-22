@@ -79,6 +79,14 @@ html[data-app="donjacobo"] {
     font-weight: 700;
     padding: 14px 28px;
   }
+  & .landing-carousel .hero-slide-cta {
+    background: #fff;
+    color: #c7253c;
+    border-radius: 0;
+  }
+  & .landing-carousel .hero-slide:hover .hero-slide-cta {
+    background: #fff5f6;
+  }
 }
 
 #root { height: 100%; min-height: 100dvh; }
