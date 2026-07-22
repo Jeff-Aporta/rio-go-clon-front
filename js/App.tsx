@@ -8,7 +8,7 @@ import {
   fetchOrderWhatsApp,
   patchOrderStatus,
 } from "./api";
-import { apiBase, appId, isEmbedMode, loadConfig, openAppsHub, storageKey } from "./config";
+import { apiBase, appId, isEmbedMode, loadConfig, storageKey } from "./config";
 import { applyBrandTheme, readCachedBrand, writeCachedBrand } from "./brand";
 import { ProductCard } from "./components/ProductCard";
 import { CartPanel } from "./components/CartPanel";
@@ -489,11 +489,6 @@ export function App() {
             <span className="label">Carrito</span>
             {cartCount > 0 ? <span className="badge">{cartCount}</span> : null}
           </button>
-          {!isEmbedMode() ? (
-            <button type="button" className="theme-toggle" aria-label="Todas las tiendas" title="Todas las tiendas" onClick={openAppsHub}>
-              <iconify-icon icon="mdi:view-grid-outline" width="20" height="20"></iconify-icon>
-            </button>
-          ) : null}
           <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
         </div>
       </header>
