@@ -384,7 +384,7 @@ html.sl-theme-light .hero-price {
 
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 38%);
   align-items: center;
   gap: 8px;
   margin: 0;
@@ -399,6 +399,9 @@ html.sl-theme-light .hero-price {
 .toolbar sl-select {
   --sl-input-height-small: 32px;
   --sl-input-font-size-small: 0.85rem;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .cat-section {
@@ -799,7 +802,7 @@ html.sl-theme-light .hero-price {
   }
   .hero-caption h2 { font-size: 1.05rem; }
   .hero-caption p { font-size: 0.82rem; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-  .toolbar { grid-template-columns: 1fr; padding: 4px 12px; gap: 6px; }
+  .toolbar { padding: 4px 12px; gap: 6px; }
   .product-card { flex-basis: 156px; }
   .cart-item { grid-template-columns: 56px 1fr; }
   .cart-item > .money:last-child { grid-column: 2; justify-self: start; }

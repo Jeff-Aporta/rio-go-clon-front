@@ -473,7 +473,7 @@ export function App() {
           <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable size="small">
             <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
           </sl-input>
-          <sl-select ref={catBind} placeholder="Categoría" clearable size="small" style={{ minWidth: 180 }}>
+          <sl-select ref={catBind} placeholder="Categoría" clearable size="small">
             {categorias.map((c) => (
               <sl-option key={c} value={catSlug(c)}>{c}</sl-option>
             ))}
