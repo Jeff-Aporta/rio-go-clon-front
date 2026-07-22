@@ -1,0 +1,174 @@
+export type Modalidad = "domicilio" | "recoger";
+
+export type OrderStatus = "nuevo" | "preparando" | "listo" | "entregado" | "cancelado" | string;
+
+export type ThemeMode = "dark" | "light";
+
+/** Paleta por modo — idéntica al contrato API /api/brand. */
+export type ThemePalette = {
+  bg: string;
+  surface: string;
+  surface2: string;
+  line: string;
+  text: string;
+  muted: string;
+  accent: string;
+  accent2: string;
+  ok: string;
+  danger: string;
+  headerBg: string;
+  priceBar: string;
+  heroCaption: string;
+};
+
+/** Identidad de marca — misma forma en cualquier server compatible. */
+export type BrandIdentity = {
+  id: string;
+  name: string;
+  legalName?: string;
+  tagline?: string;
+  city?: string;
+  address?: string;
+  icon?: string;
+  logoUrl?: string | null;
+  logoDarkUrl?: string | null;
+  currency?: string;
+  locale?: string;
+  defaultTheme?: ThemeMode;
+  whatsapp?: string;
+  /** Opcional: si falta, el front usa paletas base (CSS). */
+  themes?: {
+    dark?: ThemePalette;
+    light?: ThemePalette;
+  };
+};
+
+export type BrandResponse = {
+  ok: true;
+  brand: BrandIdentity;
+  contractVersion: number;
+};
+
+export type CartItem = {
+  codigoAb: string;
+  nombre: string;
+  precio: number;
+  qty: number;
+  imagen?: string | null;
+  extras?: unknown;
+  note?: string;
+};
+
+export type Customer = {
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  barrio: string;
+  observaciones: string;
+  modalidad: Modalidad;
+};
+
+export type ProductImage = {
+  id: string;
+  url: string;
+  miniUrl?: string | null;
+  descripcion?: string;
+  portada?: boolean;
+  sort: number;
+};
+
+export type Product = {
+  codigoAb: string;
+  nombre: string;
+  categoria: string;
+  descripcion: string;
+  precioBase: number;
+  precioUnidad: number;
+  imagenUrl: string | null;
+  imagenMiniUrl: string | null;
+  imagenes?: ProductImage[];
+  cantidad: number;
+  combo: unknown;
+  pizza: unknown;
+  sugerencia: unknown;
+  productoSin: unknown;
+  negocio: string | null;
+  idCategoria: string | null;
+  sortOrder?: number;
+};
+
+export type StoreDisplay = {
+  logo?: string;
+  valDomicilio?: number;
+  direccionDetallada?: string;
+  wsNotificacion?: string;
+  [key: string]: unknown;
+};
+
+export type StorePrices = {
+  delivery?: number;
+  minOrder?: number;
+  minPSE?: number;
+  recargos?: unknown[];
+  precioBarrios?: unknown[];
+};
+
+export type CatalogStore = {
+  display: StoreDisplay;
+  prices: StorePrices;
+  categorias: string[];
+  carousel: number[];
+  updatedAt?: string;
+};
+
+export type CatalogResponse = {
+  ok: true;
+  store: CatalogStore;
+  products: Product[];
+  meta?: {
+    total: number;
+    limit: number;
+    offset: number;
+    page: number;
+    pages: number;
+  };
+  listFilters?: Record<string, unknown>;
+};
+
+/** Filtro ISS (QUERY /api/catalog). */
+export type IssListFilter = {
+  search?: string;
+  searchColumn?: string;
+  limit?: number;
+  offset?: number;
+  eq?: Record<string, string | number | boolean>;
+  sort?: string;
+  distinct?: string[];
+};
+
+export type Order = {
+  id: string;
+  status: OrderStatus;
+  customer: Partial<Customer> & Record<string, unknown>;
+  items: CartItem[];
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type RouteState =
+  | { tab: "menu" | "carrito" | "pedidos" | "admin"; orderId: null }
+  | { tab: "pedido"; orderId: string };
+
+export type ApiOk<T> = { ok: true } & T;
+export type ApiErr = { ok: false; error: string };
+
+/** config.json del front — solo cambia apiBase para apuntar a otro server. */
+export type FrontConfig = {
+  apiBase: string;
+  storagePrefix?: string;
+  comment?: string;
+};

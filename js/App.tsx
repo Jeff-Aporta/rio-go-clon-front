@@ -1,0 +1,596 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createOrder,
+  fetchAdminOrders,
+  fetchBrand,
+  fetchCatalog,
+  fetchOrderPublic,
+  patchOrderStatus,
+} from "./api";
+import { apiBase, loadConfig, storageKey } from "./config";
+import { applyBrandTheme } from "./brand";
+import { ProductCard } from "./components/ProductCard";
+import { CartPanel } from "./components/CartPanel";
+import { OrderPanel } from "./components/OrderPanel";
+import { PedidosLookup } from "./components/PedidosLookup";
+import { AdminCatalog } from "./components/AdminCatalog";
+import { AdminPanel } from "./components/AdminPanel";
+import { isAdminView, orderViewUrl, readRoute, writeAdminView, writeRoute } from "./nav";
+import { openOrderWhatsApp } from "./whatsapp";
+import { useSl } from "./hooks/useSl";
+import { money } from "./money";
+import type {
+  BrandIdentity,
+  CartItem,
+  CatalogResponse,
+  Customer,
+  Order,
+  Product,
+  RouteState,
+  ThemeMode,
+} from "./types";
+
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(storageKey("cart")) || localStorage.getItem("riogo:cart");
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function readTheme(): ThemeMode {
+  try {
+    const v = localStorage.getItem(storageKey("theme")) || localStorage.getItem("riogo:theme");
+    if (v === "light" || v === "dark") return v;
+  } catch {
+    /* ignore */
+  }
+  return "dark";
+}
+
+function emptyCustomer(): Customer {
+  return {
+    nombre: "",
+    telefono: "",
+    direccion: "",
+    barrio: "",
+    observaciones: "",
+    modalidad: "domicilio",
+  };
+}
+
+function productBlurb(p: Product): string {
+  const d = (p.descripcion || "").trim();
+  if (!d || d === "undefined") return "";
+  return d.length > 90 ? `${d.slice(0, 90)}…` : d;
+}
+
+function slValue(e: Event): string {
+  const t = e.target as HTMLInputElement & { value?: string };
+  return String(t?.value ?? "");
+}
+
+/** Shoelace prohíbe espacios en sl-option value — slug estable sin spaces. */
+function catSlug(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase() || "CAT";
+}
+
+export function App() {
+  const [adminView, setAdminView] = useState(isAdminView);
+  const [route, setRoute] = useState<RouteState>(readRoute);
+  const [brand, setBrand] = useState<BrandIdentity | null>(null);
+  const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>(loadCart);
+  const [q, setQ] = useState("");
+  const [catFilter, setCatFilter] = useState("");
+  const [detail, setDetail] = useState<Product | null>(null);
+  const [toast, setToast] = useState("");
+  const [theme, setTheme] = useState<ThemeMode>(readTheme);
+  const [orderView, setOrderView] = useState<Order | { error: string } | null>(null);
+  const [adminOrders, setAdminOrders] = useState<Order[]>([]);
+  const [adminToken, setAdminToken] = useState(
+    () => localStorage.getItem(storageKey("adminToken")) || localStorage.getItem("riogo:adminToken") || "",
+  );
+  const [customer, setCustomer] = useState<Customer>(emptyCustomer);
+  const [placing, setPlacing] = useState(false);
+  const drawerRef = useRef<HTMLElement | null>(null);
+
+  const onSearch = useCallback((e: Event) => setQ(slValue(e)), []);
+  const searchRef = useSl("sl-input", onSearch);
+  const searchClearRef = useSl("sl-clear", useCallback(() => setQ(""), []));
+  const catClearRef = useSl("sl-clear", useCallback(() => setCatFilter(""), []));
+
+  const searchBind = useCallback(
+    (el: HTMLElement | null) => {
+      searchRef(el);
+      searchClearRef(el);
+    },
+    [searchRef, searchClearRef],
+  );
+
+  const notify = useCallback((msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(""), 2200);
+  }, []);
+
+  useEffect(() => {
+    applyBrandTheme(brand, theme);
+    try {
+      localStorage.setItem(storageKey("theme"), theme);
+    } catch {
+      /* ignore */
+    }
+  }, [theme, brand]);
+
+  useEffect(() => {
+    const onPop = () => {
+      setAdminView(isAdminView());
+      setRoute(readRoute());
+    };
+    window.addEventListener("popstate", onPop);
+    // migra hash viejo → ?s=
+    if (location.hash.startsWith("#/")) {
+      const h = location.hash.replace(/^#/, "");
+      const m = /^\/p\/([A-Za-z0-9]+)/.exec(h);
+      if (m?.[1]) writeRoute("pedido", m[1], true);
+      else {
+        const tab = h.replace(/^\//, "").split("/")[0] || "menu";
+        writeRoute(tab, null, true);
+      }
+      setRoute(readRoute());
+    } else if (!isAdminView() && !new URLSearchParams(location.search).has("s") && location.search === "" && !location.hash) {
+      writeRoute("menu", null, true);
+    }
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(storageKey("cart"), JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        setLoading(true);
+        await loadConfig();
+        if (adminView) {
+          const brandRes = await fetchBrand();
+          if (cancelled) return;
+          setBrand(brandRes.brand);
+          applyBrandTheme(brandRes.brand, theme);
+          setError("");
+        } else {
+          const [brandRes, catalogRes] = await Promise.all([fetchBrand(), fetchCatalog()]);
+          if (cancelled) return;
+          setBrand(brandRes.brand);
+          setCatalog(catalogRes);
+          applyBrandTheme(brandRes.brand, theme);
+          setError("");
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminView]);
+
+  useEffect(() => {
+    if (route.tab !== "pedido" || !route.orderId) {
+      setOrderView(null);
+      return;
+    }
+    const id = route.orderId;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const data = await fetchOrderPublic(id);
+        if (!cancelled) setOrderView(data.order);
+      } catch (e) {
+        if (!cancelled) setOrderView({ error: e instanceof Error ? e.message : String(e) });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [route]);
+
+  useEffect(() => {
+    const el = drawerRef.current;
+    if (!el) return;
+    (el as HTMLElement & { open: boolean }).open = !!detail;
+    const hide = () => setDetail(null);
+    el.addEventListener("sl-after-hide", hide);
+    return () => el.removeEventListener("sl-after-hide", hide);
+  }, [detail]);
+
+  const products = catalog?.products ?? [];
+  const categorias = catalog?.store.categorias ?? [];
+  const display = catalog?.store.display ?? {};
+  const prices = catalog?.store.prices ?? {};
+  const carouselIdx = catalog?.store.carousel ?? [];
+
+  const catBySlug = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of categorias) m.set(catSlug(c), c);
+    return m;
+  }, [categorias]);
+
+  const onCat = useCallback(
+    (e: Event) => {
+      const slug = slValue(e);
+      if (!slug) {
+        setCatFilter("");
+        return;
+      }
+      setCatFilter(catBySlug.get(slug) ?? slug);
+    },
+    [catBySlug],
+  );
+  const catRef = useSl("sl-change", onCat);
+  const catBind = useCallback(
+    (el: HTMLElement | null) => {
+      catRef(el);
+      catClearRef(el);
+    },
+    [catRef, catClearRef],
+  );
+
+  const qtyByCode = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const it of cart) m.set(it.codigoAb, it.qty);
+    return m;
+  }, [cart]);
+
+  const heroItems = useMemo(() => {
+    const fromCarousel = carouselIdx.map((i) => products[Number(i)]).filter((p): p is Product => !!p);
+    const fallback = products.slice(0, 3);
+    return [...fromCarousel, ...fallback]
+      .filter((p, idx, arr) => arr.findIndex((x) => x.codigoAb === p.codigoAb) === idx)
+      .slice(0, 6);
+  }, [carouselIdx, products]);
+
+  const filteredCats = useMemo(() => {
+    const qq = q.trim().toLowerCase();
+    const list = catFilter ? categorias.filter((c) => c === catFilter) : categorias;
+    return list
+      .map((cat) => ({
+        cat,
+        items: products.filter((p) => {
+          if (p.categoria !== cat) return false;
+          if (!qq) return true;
+          return p.nombre.toLowerCase().includes(qq) || p.descripcion.toLowerCase().includes(qq);
+        }),
+      }))
+      .filter((x) => x.items.length > 0);
+  }, [categorias, products, q, catFilter]);
+
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  const subtotal = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const deliveryFee = Number(prices.delivery ?? display.valDomicilio ?? 0);
+  const total = subtotal + deliveryFee;
+
+  const addToCart = useCallback(
+    (p: Product, qty = 1) => {
+      setCart((prev) => {
+        const i = prev.findIndex((x) => x.codigoAb === p.codigoAb);
+        if (i >= 0) {
+          const next = [...prev];
+          const cur = next[i];
+          if (!cur) return prev;
+          next[i] = { ...cur, qty: cur.qty + qty };
+          return next;
+        }
+        return [
+          ...prev,
+          {
+            codigoAb: p.codigoAb,
+            nombre: p.nombre,
+            precio: Number(p.precioUnidad),
+            qty,
+            imagen: p.imagenMiniUrl || p.imagenUrl,
+          },
+        ];
+      });
+      notify(`Agregado: ${p.nombre}`);
+    },
+    [notify],
+  );
+
+  const setQty = (codigoAb: string, qty: number) => {
+    setCart((prev) =>
+      prev.map((x) => (x.codigoAb === codigoAb ? { ...x, qty } : x)).filter((x) => x.qty > 0),
+    );
+  };
+
+  const go = (tab: string, orderId?: string | null) => {
+    writeRoute(tab, orderId ?? null);
+    setRoute(readRoute());
+  };
+
+  const setCust = (key: keyof Customer) => (e: Event) => {
+    const value = slValue(e);
+    setCustomer((c) => ({ ...c, [key]: value }));
+  };
+
+  const placeOrder = async () => {
+    if (!cart.length) return notify("Carrito vacío");
+    const minOrder = Number(prices.minOrder || 0);
+    if (subtotal < minOrder) return notify(`Pedido mínimo ${money(minOrder)}`);
+    try {
+      setPlacing(true);
+      const data = await createOrder({
+        customer,
+        items: cart,
+        subtotal,
+        deliveryFee,
+        total,
+        notes: customer.observaciones || "",
+      });
+      const viewUrl = orderViewUrl(data.id);
+      openOrderWhatsApp(viewUrl, brand?.whatsapp);
+      setCart([]);
+      go("pedido", data.id);
+      notify(`Pedido #${data.id} — abriendo WhatsApp`);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  const loadAdmin = async () => {
+    try {
+      localStorage.setItem(storageKey("adminToken"), adminToken);
+      const data = await fetchAdminOrders(adminToken);
+      setAdminOrders(data.orders);
+      notify("Pedidos cargados");
+    } catch (e) {
+      notify(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const patchStatus = async (id: string, status: string) => {
+    try {
+      await patchOrderStatus(adminToken, id, status);
+      await loadAdmin();
+    } catch (e) {
+      notify(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const logo =
+    (brand?.logoUrl || brand?.logoDarkUrl || String(display.logo ?? "")).replace(/^http:/, "https:") || "";
+  const storeName = brand?.name || "Tienda";
+  const storeAddress = brand?.address || String(display.direccionDetallada ?? brand?.city ?? "");
+  const storeIcon = brand?.icon || "mdi:storefront";
+  const menuActive = route.tab === "menu";
+
+  if (adminView) {
+    if (loading && !brand) {
+      return (
+        <div className="empty">
+          <sl-spinner style={{ fontSize: "2.5rem" }}></sl-spinner>
+          <p>Cargando admin…</p>
+        </div>
+      );
+    }
+    return <AdminCatalog brandName={storeName} onExit={() => { writeAdminView(false, true); setAdminView(false); }} />;
+  }
+
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="header-left">
+          <button type="button" className="brand" onClick={() => go("menu")} aria-label="Ir al menú">
+            {logo ? (
+              <img src={logo} alt={storeName} />
+            ) : (
+              <iconify-icon icon={storeIcon} width="36" height="36" style={{ color: "var(--rg-accent)" }}></iconify-icon>
+            )}
+            <div>
+              <h1>{storeName}</h1>
+              {storeAddress ? <small title={storeAddress}>{storeAddress}</small> : null}
+            </div>
+          </button>
+          <div className="brand-sep" aria-hidden="true" />
+          <nav className="header-tabs" aria-label="Secciones">
+            <button
+              type="button"
+              className={`tab-btn ${menuActive ? "active" : ""}`}
+              onClick={() => go("menu")}
+            >
+              <iconify-icon icon="mdi:food" width="18" height="18"></iconify-icon>
+              <span className="label">Menú</span>
+            </button>
+          </nav>
+        </div>
+
+        <div className="header-actions">
+          {toast ? <sl-badge variant="primary" pill>{toast}</sl-badge> : null}
+          <button
+            type="button"
+            className={`tab-btn cart-btn ${route.tab === "carrito" ? "active" : ""}`}
+            onClick={() => go("carrito")}
+            aria-label="Carrito"
+          >
+            <iconify-icon icon="mdi:cart" width="18" height="18"></iconify-icon>
+            <span className="label">Carrito</span>
+            {cartCount > 0 ? <span className="badge">{cartCount}</span> : null}
+          </button>
+          <button
+            type="button"
+            className="theme-toggle"
+            aria-label="Cambiar tema"
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+          >
+            <iconify-icon
+              icon={theme === "dark" ? "mdi:weather-sunny" : "mdi:weather-night"}
+              width="20"
+              height="20"
+            ></iconify-icon>
+          </button>
+        </div>
+      </header>
+
+      <main className="panel">
+        <div className="panel-scroll">
+          {loading ? (
+            <div className="empty">
+              <sl-spinner style={{ fontSize: "2.5rem" }}></sl-spinner>
+              <p>Cargando catálogo…</p>
+            </div>
+          ) : error ? (
+            <div className="empty">
+              <iconify-icon icon="mdi:cloud-alert"></iconify-icon>
+              <p>{error}</p>
+              <p style={{ fontSize: "0.85rem" }}>API: <code>{apiBase()}</code></p>
+            </div>
+          ) : route.tab === "menu" ? (
+            <>
+              {heroItems.length ? (
+                <section className="hero">
+                  <sl-carousel
+                    loop
+                    navigation
+                    pagination
+                    mouse-dragging
+                    autoplay
+                    autoplay-interval="7500"
+                    slides-per-page="1"
+                  >
+                    {heroItems.map((p) => {
+                      const blurb = productBlurb(p);
+                      return (
+                        <sl-carousel-item key={p.codigoAb}>
+                          <div className="hero-slide" onClick={() => setDetail(p)}>
+                            <img src={p.imagenUrl || p.imagenMiniUrl || ""} alt={p.nombre} />
+                            <div className="hero-shade" aria-hidden="true" />
+                            <div className="hero-caption">
+                              <h2>{p.nombre}</h2>
+                              {blurb ? <p>{blurb}</p> : null}
+                              <span className="hero-price">{money(p.precioUnidad)}</span>
+                            </div>
+                          </div>
+                        </sl-carousel-item>
+                      );
+                    })}
+                  </sl-carousel>
+                </section>
+              ) : null}
+
+              <div className="toolbar">
+                <sl-input ref={searchBind} placeholder="Buscar en el menú" clearable>
+                  <iconify-icon slot="prefix" icon="mdi:magnify"></iconify-icon>
+                </sl-input>
+                <sl-select ref={catBind} placeholder="Categoría" clearable style={{ minWidth: 220 }}>
+                  {categorias.map((c) => (
+                    <sl-option key={c} value={catSlug(c)}>{c}</sl-option>
+                  ))}
+                </sl-select>
+              </div>
+
+              {filteredCats.length === 0 ? (
+                <div className="empty">
+                  <iconify-icon icon="mdi:magnify-close"></iconify-icon>
+                  <p>Sin resultados para la búsqueda</p>
+                </div>
+              ) : (
+                filteredCats.map(({ cat, items }) => (
+                  <section key={cat} className="cat-section">
+                    <div className="cat-head">
+                      <h3>{cat}</h3>
+                      <span>{items.length} ítems</span>
+                    </div>
+                    <div className="rail">
+                      {items.map((p) => (
+                        <ProductCard
+                          key={p.codigoAb}
+                          p={p}
+                          qty={qtyByCode.get(p.codigoAb) ?? 0}
+                          onOpen={setDetail}
+                          onAdd={addToCart}
+                          onSetQty={setQty}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))
+              )}
+            </>
+          ) : route.tab === "carrito" ? (
+            <CartPanel
+              cart={cart}
+              setQty={setQty}
+              customer={customer}
+              setCust={setCust}
+              prices={prices}
+              display={display}
+              subtotal={subtotal}
+              deliveryFee={deliveryFee}
+              total={total}
+              placing={placing}
+              placeOrder={() => void placeOrder()}
+              go={go}
+            />
+          ) : route.tab === "pedido" && route.orderId ? (
+            <OrderPanel order={orderView} orderId={route.orderId} onBack={() => go("menu")} />
+          ) : route.tab === "pedidos" ? (
+            <PedidosLookup
+              onOpen={(id) => {
+                go("pedido", id);
+              }}
+            />
+          ) : (
+            <AdminPanel
+              adminToken={adminToken}
+              setAdminToken={setAdminToken}
+              loadAdmin={() => void loadAdmin()}
+              adminOrders={adminOrders}
+              patchStatus={(id, status) => void patchStatus(id, status)}
+            />
+          )}
+        </div>
+      </main>
+
+      <sl-drawer ref={drawerRef} label={detail?.nombre || "Producto"} style={{ "--size": "420px" }}>
+        {detail ? (
+          <div>
+            {detail.imagenUrl || detail.imagenMiniUrl ? (
+              <img className="detail-media" src={detail.imagenUrl || detail.imagenMiniUrl || ""} alt="" />
+            ) : null}
+            <div className="detail-price">{money(detail.precioUnidad)}</div>
+            <p style={{ color: "var(--rg-muted)", lineHeight: 1.45 }}>
+              {productBlurb(detail) || detail.descripcion || "Sin descripción"}
+            </p>
+            <sl-button
+              variant="primary"
+              style={{ width: "100%" }}
+              onClick={() => {
+                addToCart(detail);
+                setDetail(null);
+              }}
+            >
+              Agregar al carrito
+            </sl-button>
+          </div>
+        ) : null}
+      </sl-drawer>
+    </div>
+  );
+}

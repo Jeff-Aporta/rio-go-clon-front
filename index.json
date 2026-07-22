@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "title": "RIO GO 24 — Pedidos",
+    "applicationName": "RIO GO 24",
+    "description": "Carta digital RIO GO 24 Armenia — pide online.",
+    "keywords": "RIO GO, Armenia, pedidos, menú, Jeff-Aporta",
+    "themeColor": "#0c0f14",
+    "themeLsKey": "riogo:theme",
+    "icon": "mdi:hamburger",
+    "canonical": "https://jeff-aporta.github.io/rio-go-clon-front/",
+    "ogSiteName": "Jeff-Aporta — RIO GO 24",
+    "ogTitle": "RIO GO 24 — Pedidos",
+    "imageAlt": "RIO GO 24 — carta digital"
+  },
+  "useDist": true,
+  "loader": "mjs-module",
+  "themeInit": false,
+  "appMeta": false,
+  "fonts": false,
+  "styles": ["local:css/app.css"],
+  "libs": ["iconify", "loader-mjs"],
+  "readme": {
+    "tagline": "clon moderno del menú RIO GO 24 con Shoelace y pedidos en Neon.",
+    "badges": ["github-pages", "react", "typescript"],
+    "features": [
+      "Catálogo QUERY con filtro ISS (search, eq, sort, paginación)",
+      "Carrito, checkout domicilio y pedido WhatsApp",
+      "UI Shoelace + Iconify + tema claro/oscuro",
+      "Admin productos e imágenes (R2)"
+    ]
+  }
+}

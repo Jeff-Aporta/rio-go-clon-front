@@ -1,0 +1,23 @@
+{
+  "name": "rio-go-clon-front",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App para carta digital y pedidos de tienda (clon RIO GO 24).",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jeff-Aporta/rio-go-clon-front.git"
+  },
+  "homepage": "https://jeff-aporta.github.io/rio-go-clon-front/",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node scripts/build.mjs",
+    "build:check": "npm run typecheck && npm run build"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.2"
+  }
+}
